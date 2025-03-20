@@ -198,35 +198,35 @@ public class BodyModel {
         }
         
         // 躯干 - 使用temperatures[1]
-        float torsoTemp = normalizeTemperature(temperatures[1]);
+        float torsoTemp = normalizeTemperature(temperatures[1 * 4]);
         for (int i = 6; i < 12; i++) {
             texCoords[i*2] = torsoTemp;
             texCoords[i*2+1] = 0.5f;
         }
         
         // 左臂 - 使用temperatures[2]
-        float leftArmTemp = normalizeTemperature(temperatures[2]);
+        float leftArmTemp = normalizeTemperature(temperatures[2 * 4]);
         for (int i = 12; i < 18; i++) {
             texCoords[i*2] = leftArmTemp;
             texCoords[i*2+1] = 0.5f;
         }
         
         // 右臂 - 使用temperatures[3]
-        float rightArmTemp = normalizeTemperature(temperatures[3]);
+        float rightArmTemp = normalizeTemperature(temperatures[3 * 4]);
         for (int i = 18; i < 24; i++) {
             texCoords[i*2] = rightArmTemp;
             texCoords[i*2+1] = 0.5f;
         }
         
         // 左腿 - 使用temperatures[4]
-        float leftLegTemp = normalizeTemperature(temperatures[4]);
+        float leftLegTemp = normalizeTemperature(temperatures[4 * 4]);
         for (int i = 24; i < 30; i++) {
             texCoords[i*2] = leftLegTemp;
             texCoords[i*2+1] = 0.5f;
         }
         
         // 右腿 - 使用temperatures[5]
-        float rightLegTemp = normalizeTemperature(temperatures[5]);
+        float rightLegTemp = normalizeTemperature(temperatures[5 * 4]);
         for (int i = 30; i < 36; i++) {
             texCoords[i*2] = rightLegTemp;
             texCoords[i*2+1] = 0.5f;
@@ -237,8 +237,12 @@ public class BodyModel {
         texCoordBuffer.put(texCoords);
         texCoordBuffer.position(0);
         
-        System.out.println("纹理坐标已更新，头部温度: " + temperatures[0] + 
-                          ", 归一化值: " + headTemp);
+        System.out.println("纹理坐标已更新 - 头部:" + headTemp + 
+                          ", 躯干:" + torsoTemp + 
+                          ", 左臂:" + leftArmTemp + 
+                          ", 右臂:" + rightArmTemp + 
+                          ", 左腿:" + leftLegTemp + 
+                          ", 右腿:" + rightLegTemp);
     }
     
     // 将温度值归一化到0-1范围

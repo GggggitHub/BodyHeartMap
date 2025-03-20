@@ -306,12 +306,12 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
                 
                 // 打印日志确认温度更新
                 System.out.println("温度数据已更新: " + 
-                                  temperatures[0] + ", " + 
-                                  temperatures[1] + ", " + 
-                                  temperatures[2] + ", " + 
-                                  temperatures[3] + ", " + 
-                                  temperatures[4] + ", " + 
-                                  temperatures[5]);
+                                  "头部=" + temperatures[0] + ", " + 
+                                  "躯干=" + temperatures[1] + ", " + 
+                                  "左臂=" + temperatures[2] + ", " + 
+                                  "右臂=" + temperatures[3] + ", " + 
+                                  "左腿=" + temperatures[4] + ", " + 
+                                  "右腿=" + temperatures[5]);
                 
                 // 标记需要重绘
                 needsRedraw = true;
@@ -319,7 +319,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
                 System.err.println("bodyModel为空，无法更新纹理坐标");
             }
         } else {
-            System.err.println("无效的温度数据长度");
+            System.err.println("无效的温度数据长度，需要至少6个值对应6个身体部位");
         }
     }
     

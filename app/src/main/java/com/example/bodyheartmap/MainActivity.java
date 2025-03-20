@@ -3,6 +3,7 @@ package com.example.bodyheartmap;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.SeekBar;
@@ -16,6 +17,8 @@ import com.aj.bodyheartmap.R;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
+    private static final String TAG = "MainActivity";
+
     private HeatMapView heatMapView;
     private float[] temperatureData;
     private Handler handler;
@@ -30,9 +33,14 @@ public class MainActivity extends AppCompatActivity {
     private static final int RIGHT_ARM = 3;
     private static final int LEFT_LEG = 4;
     private static final int RIGHT_LEG = 5;
-    
+
+    //各部位的名称
+    public static final String[] bodyPartNames = {
+        "头部", "躯干", "左臂", "右臂", "左腿", "右腿"
+    };
+
     // 当前选中的身体部位
-    private int selectedBodyPart = TORSO;
+    private volatile int selectedBodyPart = TORSO;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -77,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         seekBarTemp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float temp = 35.0f + (progress / 100.0f) * 5.0f; // 35-40度范围
+                float temp = 35.0f + (progress / 100.0f) * 7.0f; // 35-42度范围
                 tvTempValue.setText(String.format("%.1f°C", temp));
                 
                 if (fromUser) {
@@ -167,8 +175,8 @@ public class MainActivity extends AppCompatActivity {
                 for (int i = 0; i < temperatureData.length; i++) {
                     // 在原温度基础上随机波动 ±0.3 度
                     temperatureData[i] += (random.nextFloat() - 0.5f) * 0.6f;
-                    // 限制温度范围在 35-40 度
-                    temperatureData[i] = Math.max(35.0f, Math.min(40.0f, temperatureData[i]));
+                    // 限制温度范围在 35-42 度
+                    temperatureData[i] = Math.max(35.0f, Math.min(42.0f, temperatureData[i]));
                 }
                 
                 // 更新热力图
@@ -192,6 +200,7 @@ public class MainActivity extends AppCompatActivity {
     }
     
     private void updateSelectedAreaTemperature(float temperature) {
+        Log.e(TAG, "updateSelectedAreaTemperature: 更新的区域是" + bodyPartNames[selectedBodyPart] + "      温度是" + temperature + "度");
         // 更新特定区域的温度
         int startIdx = selectedBodyPart * 4;
         for (int i = 0; i < 4; i++) {
