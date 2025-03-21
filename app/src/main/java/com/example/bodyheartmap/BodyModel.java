@@ -202,6 +202,7 @@ public class BodyModel {
         for (int i = 6; i < 12; i++) {
             texCoords[i*2] = torsoTemp;
             texCoords[i*2+1] = alpha;
+//            texCoords[i*2+1] = 1.0f;
         }
         
         // 左臂 - 使用temperatures[2]
@@ -245,12 +246,7 @@ public class BodyModel {
                           ", 右腿:" + rightLegTemp + 
                           ", 透明度:" + alpha);
     }
-    
-    // 保持原有的方法，但调用新方法并使用默认透明度
-    public void updateTextureCoordinates(float[] temperatures) {
-        // 默认透明度为1.0（完全不透明）
-        updateTextureCoordinates(temperatures, 1.0f);
-    }
+
     
     // 将温度值归一化到0-1范围
     private float normalizeTemperature(float temperature) {

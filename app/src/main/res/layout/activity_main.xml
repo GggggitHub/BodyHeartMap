@@ -14,19 +14,25 @@
         app:layout_constraintBottom_toTopOf="@+id/controls_panel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toTopOf="parent"
+        android:background="@color/white">
         <ImageView
             android:id="@+id/image_view"
+            android:visibility="visible"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:src="@drawable/body_origin_img"
             android:layout_gravity="center"
             />
         <com.example.bodyheartmap.HeatMapView
-            android:visibility="gone"
             android:id="@+id/heat_map_view"
             android:layout_width="match_parent"
+            android:layout_marginLeft="50dp"
+            android:layout_marginRight="50dp"
             android:layout_height="match_parent"
+            android:alpha="1"
+            android:visibility="visible"
+            android:background="@android:color/transparent"
            />
     </FrameLayout>
 

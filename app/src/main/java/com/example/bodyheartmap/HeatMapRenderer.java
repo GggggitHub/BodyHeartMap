@@ -129,22 +129,53 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         
         System.out.println("颜色映射纹理创建完成，ID: " + colorMapTexture);
     }
-    
-    // 修改片段着色器代码，支持透明度
+
+
+    private float alpha = 0.7f; // 默认透明度
+
+    public void setAlpha(float alpha) {
+        this.alpha = alpha;
+    }
+
+    /**
+     # 全局透明度和局部透明度的工作原理
+     是的，您的代码中确实有两个透明度值在配合工作：
+
+     1. 全局透明度(uAlpha) ：这是通过uniform变量传递给着色器的，代表整个热力图的透明度。这个值是通过 setAlpha() 方法设置的，通常由UI上的透明度滑动条控制。
+     2. 局部透明度(texCoord.y) ：这是通过纹理坐标的y分量传递给着色器的，代表每个顶点的局部透明度。这个值是在 BodyModel 类中设置的，当调用 updateTextureCoordinates() 方法时会更新。
+
+     它们的配合工作方式如下：
+     float alpha = texCoord.y * uAlpha;
+
+     这行代码将两个透明度值相乘，得到最终应用于像素的透明度值。这意味着：
+
+     - 如果全局透明度(uAlpha)为1.0，则最终透明度完全由局部透明度(texCoord.y)决定
+     - 如果全局透明度(uAlpha)为0.0，则无论局部透明度是多少，最终都是完全透明的
+     - 如果局部透明度(texCoord.y)为0.0，则该像素完全透明，无论全局透明度是多少
+     - 其他情况下，最终透明度是两者的乘积，这样可以实现更细致的透明度控制
+     这种设计的优点是：
+
+     1. 您可以通过滑动条控制整个热力图的整体透明度
+     2. 同时，您可以为不同的身体部位设置不同的基础透明度
+     3. 两者结合，可以实现非常灵活的透明度效果
+
+     * @return
+     */
     private String getFragmentShaderCode() {
         return 
-            "precision mediump float;\n" +
-            "varying vec2 texCoord;\n" +
-            "uniform sampler2D uColorMap;\n" +
-            "void main() {\n" +
-            "  // 使用纹理坐标的x分量作为温度值，y分量作为透明度\n" +
-            "  float normalizedTemp = texCoord.x;\n" + 
-            "  float alpha = texCoord.y;\n" + // 从纹理坐标获取透明度
-            "  vec4 color = texture2D(uColorMap, vec2(normalizedTemp, 0.5));\n" +
-            "  gl_FragColor = vec4(color.rgb, color.a * alpha);\n" + // 应用透明度
-            "}\n"; // 确保这里有结束的花括号
+                "precision mediump float;\n" +
+                "varying vec2 texCoord;\n" +
+                "uniform sampler2D uColorMap;\n" +
+                "uniform float uAlpha;\n" + // 全局透明度
+                "void main() {\n" +
+                "  float normalizedTemp = texCoord.x;\n" + 
+                "  float alpha = texCoord.y * uAlpha;\n" + // 结合局部和全局透明度
+                "  vec4 color = texture2D(uColorMap, vec2(normalizedTemp, 0.5));\n" +
+                "  gl_FragColor = vec4(color.rgb, alpha);\n" + // 设置透明度
+                "}\n";
     }
-    
+
+
     // 修改顶点着色器代码，确保所有花括号匹配
     private String getVertexShaderCode() {
         return 
@@ -158,30 +189,6 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
             "}\n"; // 确保这里有结束的花括号
     }
 
-    // 修改片段着色器代码，支持透明度
-    private String getFragmentShaderCodeOld() {
-        return "precision mediump float;\n" +
-                        "varying vec2 texCoord;\n" +
-                        "uniform sampler2D uColorMap;\n" +
-                        "void main() {\n" +
-                        "  // 使用纹理坐标的x值作为热力图索引\n" +
-                        "  float heatIndex = texCoord.x;\n" +
-                        "  gl_FragColor = texture2D(uColorMap, vec2(heatIndex, 0.5));\n" +
-                        "}\n";
-    }
-
-    // 修改顶点着色器代码，确保正确传递纹理坐标
-    private String getVertexShaderCodeOld() {
-        return
-                "uniform mat4 uMVPMatrix;\n" +
-                        "attribute vec4 vPosition;\n" +
-                        "attribute vec2 vTexCoord;\n" +
-                        "varying vec2 texCoord;\n" +
-                        "void main() {\n" +
-                        "  gl_Position = uMVPMatrix * vPosition;\n" +
-                        "  texCoord = vTexCoord;\n" +
-                        "}\n";
-    }
 
     // Add loadShader method
     private int loadShader(int type, String shaderCode) {
@@ -212,6 +219,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
     
     // 更新温度数据，并支持透明度
     public void updateTemperature(float[] temperatures, float alpha) {
+        this.alpha = alpha;
         if (temperatures != null && temperatures.length >= 6) {
             // 复制温度数据
             System.arraycopy(temperatures, 0, temperatureData, 0, Math.min(temperatures.length, temperatureData.length));
@@ -242,12 +250,16 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         // 默认透明度为1.0（完全不透明）
         updateTemperature(temperatures, 1.0f);
     }
-    
+
+
     @Override
     public void onSurfaceCreated(GL10 gl, EGLConfig config) {
-
-        // 设置背景色为透明
+        // 设置背景色为完全透明
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+    
+        //启用混合
+        GLES20.glEnable(GLES20.GL_BLEND);
+        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
 
         // 创建颜色映射纹理
         createColorMapTexture();
@@ -285,10 +297,6 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         colorMapHandle = GLES20.glGetUniformLocation(program, "uColorMap");
         mvpMatrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix");
 
-        // 启用混合，使颜色能够正确显示
-        GLES20.glEnable(GLES20.GL_BLEND);
-        GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
         System.out.println("着色器程序创建完成，ID: " + program);
         System.out.println("位置句柄: " + positionHandle);
         System.out.println("纹理坐标句柄: " + texCoordHandle);
@@ -309,7 +317,11 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         
         // 使用着色器程序
         GLES20.glUseProgram(program);
-        
+
+        // 设置透明度uniform
+        int alphaHandle = GLES20.glGetUniformLocation(program, "uAlpha");
+        GLES20.glUniform1f(alphaHandle, alpha);
+
         // 设置顶点属性
         GLES20.glEnableVertexAttribArray(positionHandle);
         GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT, false, 0, bodyModel.getVertexBuffer());

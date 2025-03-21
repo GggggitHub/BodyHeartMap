@@ -1,6 +1,7 @@
 package com.example.bodyheartmap;
 
 import android.content.Context;
+import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
 
@@ -12,8 +13,18 @@ public class HeatMapView extends GLSurfaceView {
         init(context);
     }
 
+    // 解决热力图透明度问题
+    // 您提到热力图的透明度有变化，但仍然看不到后面的图片和背景。这很可能是因为OpenGL渲染的透明度设置不正确。我们需要修改几个地方来解决这个问题。
+    // 修改HeatMapView
+    // 首先，我们需要确保HeatMapView支持透明背景：
     public HeatMapView(Context context, AttributeSet attrs) {
         super(context, attrs);
+        
+        // 设置为透明背景
+        setEGLConfigChooser(8, 8, 8, 8, 16, 0);
+        getHolder().setFormat(PixelFormat.TRANSLUCENT);
+        setZOrderOnTop(true);
+        
         init(context);
     }
 
@@ -40,6 +51,11 @@ public class HeatMapView extends GLSurfaceView {
     // 更新温度数据
     public void updateTemperatureData(float[] temperatures, float alpha) {
         renderer.updateTemperature(temperatures,alpha);
+        requestRender(); // 请求重新渲染
+    }
+
+    public void updateGlAlpha(float currentAlpha) {
+        renderer.setAlpha(currentAlpha);
         requestRender(); // 请求重新渲染
     }
 }

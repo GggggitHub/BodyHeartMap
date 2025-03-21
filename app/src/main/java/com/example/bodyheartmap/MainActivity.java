@@ -1,5 +1,6 @@
 package com.example.bodyheartmap;
 
+import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -95,8 +96,10 @@ public class MainActivity extends AppCompatActivity {
                 currentAlpha = progress / 100.0f;
                 alphaTextView.setText("透明度: " + progress + "%");
 
-                // 更新热力图透明度
-                updateSelectedAreaTemperature(currentTemperature, currentAlpha);
+                heatMapView.updateGlAlpha(currentAlpha);
+
+//                // 更新热力图透明度
+//                updateSelectedAreaTemperature(currentTemperature, currentAlpha);
             }
 
             @Override
@@ -213,7 +216,7 @@ public class MainActivity extends AppCompatActivity {
                 }
 
                 // 更新热力图
-                heatMapView.updateTemperatureData(temperatureData);
+                heatMapView.updateTemperatureData(temperatureData,currentAlpha);
 
                 // 如果当前有选中的身体部位，更新滑块
                 updateTempSliderForSelectedPart();
@@ -239,6 +242,8 @@ public class MainActivity extends AppCompatActivity {
         for (int i = 0; i < 4; i++) {
             temperatureData[startIdx + i] = temperature;
         }
+
+
 
         // 更新热力图
         heatMapView.updateTemperatureData(temperatureData, alpha);
