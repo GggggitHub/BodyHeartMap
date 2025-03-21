@@ -179,8 +179,8 @@ public class BodyModel {
         return rightLegIndices;
     }
     
-    // 添加一个方法来更新纹理坐标
-    public void updateTextureCoordinates(float[] temperatures) {
+    // 添加一个方法来更新纹理坐标，并支持透明度
+    public void updateTextureCoordinates(float[] temperatures, float alpha) {
         if (temperatures == null || temperatures.length < 6) {
             System.err.println("温度数据不足，无法更新纹理坐标");
             return;
@@ -194,42 +194,42 @@ public class BodyModel {
         float headTemp = normalizeTemperature(temperatures[0]);
         for (int i = 0; i < 6; i++) {
             texCoords[i*2] = headTemp;
-            texCoords[i*2+1] = 0.5f;
+            texCoords[i*2+1] = alpha; // 使用第二个纹理坐标分量存储透明度
         }
         
         // 躯干 - 使用temperatures[1]
-        float torsoTemp = normalizeTemperature(temperatures[1 * 4]);
+        float torsoTemp = normalizeTemperature(temperatures[1]);
         for (int i = 6; i < 12; i++) {
             texCoords[i*2] = torsoTemp;
-            texCoords[i*2+1] = 0.5f;
+            texCoords[i*2+1] = alpha;
         }
         
         // 左臂 - 使用temperatures[2]
-        float leftArmTemp = normalizeTemperature(temperatures[2 * 4]);
+        float leftArmTemp = normalizeTemperature(temperatures[2]);
         for (int i = 12; i < 18; i++) {
             texCoords[i*2] = leftArmTemp;
-            texCoords[i*2+1] = 0.5f;
+            texCoords[i*2+1] = alpha;
         }
         
         // 右臂 - 使用temperatures[3]
-        float rightArmTemp = normalizeTemperature(temperatures[3 * 4]);
+        float rightArmTemp = normalizeTemperature(temperatures[3]);
         for (int i = 18; i < 24; i++) {
             texCoords[i*2] = rightArmTemp;
-            texCoords[i*2+1] = 0.5f;
+            texCoords[i*2+1] = alpha;
         }
         
         // 左腿 - 使用temperatures[4]
-        float leftLegTemp = normalizeTemperature(temperatures[4 * 4]);
+        float leftLegTemp = normalizeTemperature(temperatures[4]);
         for (int i = 24; i < 30; i++) {
             texCoords[i*2] = leftLegTemp;
-            texCoords[i*2+1] = 0.5f;
+            texCoords[i*2+1] = alpha;
         }
         
         // 右腿 - 使用temperatures[5]
-        float rightLegTemp = normalizeTemperature(temperatures[5 * 4]);
+        float rightLegTemp = normalizeTemperature(temperatures[5]);
         for (int i = 30; i < 36; i++) {
             texCoords[i*2] = rightLegTemp;
-            texCoords[i*2+1] = 0.5f;
+            texCoords[i*2+1] = alpha;
         }
         
         // 更新纹理坐标缓冲区
@@ -242,7 +242,14 @@ public class BodyModel {
                           ", 左臂:" + leftArmTemp + 
                           ", 右臂:" + rightArmTemp + 
                           ", 左腿:" + leftLegTemp + 
-                          ", 右腿:" + rightLegTemp);
+                          ", 右腿:" + rightLegTemp + 
+                          ", 透明度:" + alpha);
+    }
+    
+    // 保持原有的方法，但调用新方法并使用默认透明度
+    public void updateTextureCoordinates(float[] temperatures) {
+        // 默认透明度为1.0（完全不透明）
+        updateTextureCoordinates(temperatures, 1.0f);
     }
     
     // 将温度值归一化到0-1范围

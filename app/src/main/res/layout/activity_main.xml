@@ -7,14 +7,29 @@
     android:background="#000000"
     tools:context=".MainActivity">
 
-    <com.example.bodyheartmap.HeatMapView
-        android:id="@+id/heat_map_view"
+    <FrameLayout
+        android:id="@+id/frame_layout"
         android:layout_width="0dp"
         android:layout_height="0dp"
         app:layout_constraintBottom_toTopOf="@+id/controls_panel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintTop_toTopOf="parent">
+        <ImageView
+            android:id="@+id/image_view"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:src="@drawable/body_origin_img"
+            android:layout_gravity="center"
+            />
+        <com.example.bodyheartmap.HeatMapView
+            android:visibility="gone"
+            android:id="@+id/heat_map_view"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+           />
+    </FrameLayout>
+
 
     <LinearLayout
         android:id="@+id/controls_panel"
@@ -35,11 +50,36 @@
             android:textColor="#FFFFFF"
             android:backgroundTint="#3F51B5" />
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
+            <SeekBar
+                android:id="@+id/alphaSeekBar"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:max="100"
+                android:progress="30"
+                android:layout_marginStart="8dp"
+                android:layout_marginEnd="8dp"
+                android:layout_margin="16dp"/>
+
+            <TextView
+                android:id="@+id/alphaTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="透明度: 100%"
+                android:layout_margin="16dp"/>
+        </LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="8dp">
+
 
             <TextView
                 android:layout_width="wrap_content"

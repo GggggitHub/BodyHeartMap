@@ -37,4 +37,9 @@ public class HeatMapView extends GLSurfaceView {
         renderer.updateTemperature(temperatures);
         requestRender(); // 请求重新渲染
     }
+    // 更新温度数据
+    public void updateTemperatureData(float[] temperatures, float alpha) {
+        renderer.updateTemperature(temperatures,alpha);
+        requestRender(); // 请求重新渲染
+    }
 }
