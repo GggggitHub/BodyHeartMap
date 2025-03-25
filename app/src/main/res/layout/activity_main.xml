@@ -55,7 +55,27 @@
             android:text="开始模拟"
             android:textColor="#FFFFFF"
             android:backgroundTint="#3F51B5" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+            <!-- 在适当位置添加缩放控制按钮 -->
+            <Button
+                android:id="@+id/btn_zoom_in"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="+"
+                android:textSize="18sp"
+                android:textStyle="bold" />
 
+            <Button
+                android:id="@+id/btn_zoom_out"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="-"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -186,5 +206,6 @@
                 android:backgroundTint="#444444" />
         </LinearLayout>
     </LinearLayout>
+
 
 </androidx.constraintlayout.widget.ConstraintLayout>

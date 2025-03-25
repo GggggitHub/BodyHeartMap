@@ -4,9 +4,11 @@ import android.content.Context;
 import android.graphics.PixelFormat;
 import android.opengl.GLSurfaceView;
 import android.util.AttributeSet;
+import android.util.Log;
 
 public class HeatMapView extends GLSurfaceView {
     private HeatMapRenderer renderer;
+    private float scaleFactor = 0.3f; // 设置固定缩放因子为0.3
 
     public HeatMapView(Context context) {
         super(context);
@@ -34,6 +36,8 @@ public class HeatMapView extends GLSurfaceView {
         
         // 创建渲染器
         renderer = new HeatMapRenderer(context);
+        // 设置缩放因子
+        renderer.setScaleFactor(scaleFactor);
         setRenderer(renderer);
         
         // 设置渲染模式为连续渲染，用于调试
@@ -57,5 +61,17 @@ public class HeatMapView extends GLSurfaceView {
     public void updateGlAlpha(float currentAlpha) {
         renderer.setAlpha(currentAlpha);
         requestRender(); // 请求重新渲染
+    }
+    
+    // 设置缩放因子
+    public void setScaleFactor(float scaleFactor) {
+        this.scaleFactor = scaleFactor;
+        if (renderer != null) {
+            renderer.setScaleFactor(scaleFactor);
+            Log.d("HeatMapView", "设置缩放因子: " + scaleFactor);
+            requestRender(); // 强制重新渲染
+        } else {
+            Log.e("HeatMapView", "渲染器为空，无法设置缩放因子");
+        }
     }
 }

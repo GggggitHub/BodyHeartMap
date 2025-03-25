@@ -48,6 +48,7 @@ public class MainActivity extends AppCompatActivity {
     private SeekBar alphaSeekBar;
     private TextView alphaTextView;
     private float currentAlpha = 1.0f;
+    private float currentScale = 0.8f; // 默认缩放因子
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -304,4 +305,10 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    // 设置热力图缩放
+    private void setHeatMapScale(float scale) {
+        if (heatMapView != null) {
+            heatMapView.setScaleFactor(scale);
+        }
+    }
 }

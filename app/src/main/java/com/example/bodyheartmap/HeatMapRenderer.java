@@ -4,6 +4,7 @@ import android.content.Context;
 import android.opengl.GLES20;
 import android.opengl.GLSurfaceView;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -67,20 +68,51 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         };
     }
 
+    // 在类成员变量中添加
+    private float scaleFactor = 0.3f; // 固定缩放因子为0.3
+    private boolean scaleChanged = true; // 标记缩放是否改变
+    private int[] viewport = new int[4]; // 用于存储视口信息
+    
+    // 添加设置缩放因子的方法
+    public void setScaleFactor(float scaleFactor) {
+        if (this.scaleFactor != scaleFactor) {
+            this.scaleFactor = scaleFactor;
+            scaleChanged = true; // 标记缩放已改变
+            Log.d("HeatMapRenderer", "缩放因子已设置为: " + scaleFactor);
+        }
+    }
+    
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        
+        updateProjectionMatrix(width, height);
+    }
+    
+    // 添加一个单独的方法来更新投影矩阵
+    private void updateProjectionMatrix(int width, int height) {
         float ratio = (float) width / height;
         
-        // 使用正交投影而不是透视投影，更适合2D显示
-        Matrix.orthoM(projectionMatrix, 0, -ratio, ratio, -1, 1, -10, 10);
+        // 重置投影矩阵
+        Matrix.setIdentityM(projectionMatrix, 0);
         
-        // 设置视图矩阵
-        Matrix.setLookAtM(viewMatrix, 0, 0, 0, -3, 0f, 0f, 0f, 0f, 1.0f, 0.0f);
+        // 使用正交投影，应用缩放因子
+        // 注意：这里我们直接使用scaleFactor而不是1/scaleFactor
+        // 因为在正交投影中，较小的视口范围会导致图像放大
+        Matrix.orthoM(projectionMatrix, 0, 
+                     -ratio * scaleFactor, ratio * scaleFactor, 
+                     -1.0f * scaleFactor, 1.0f * scaleFactor, 
+                     0.1f, 100.0f);  // 近平面和远平面的值调整为更合理的范围
         
-        // 计算变换矩阵
+        // 重置视图矩阵并向后移动相机，确保能看到所有内容
+        Matrix.setLookAtM(viewMatrix, 0, 
+                         0, 0, 3.0f,  // 相机位置
+                         0, 0, 0,     // 观察点
+                         0, 1.0f, 0); // 上向量
+        
+        // 计算最终的MVP矩阵
         Matrix.multiplyMM(mvpMatrix, 0, projectionMatrix, 0, viewMatrix, 0);
+        
+        Log.d("HeatMapRenderer", "投影矩阵已更新，缩放因子: " + scaleFactor + ", 宽度: " + width + ", 高度: " + height);
     }
 
 
@@ -266,29 +298,32 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         // 设置背景色为完全透明
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
     
+        // 启用深度测试，确保正确的绘制顺序
+        GLES20.glEnable(GLES20.GL_DEPTH_TEST);
+        
         //启用混合
         GLES20.glEnable(GLES20.GL_BLEND);
         GLES20.glBlendFunc(GLES20.GL_SRC_ALPHA, GLES20.GL_ONE_MINUS_SRC_ALPHA);
-
+    
         // 创建颜色映射纹理
         createColorMapTexture();
-
+    
         // 编译着色器
         int vertexShader = loadShader(GLES20.GL_VERTEX_SHADER, getVertexShaderCode());
         int fragmentShader = loadShader(GLES20.GL_FRAGMENT_SHADER, getFragmentShaderCode());
-
+    
         // 检查着色器编译是否成功
         if (vertexShader == 0 || fragmentShader == 0) {
             System.err.println("着色器编译失败，无法继续");
             return;
         }
-
+    
         // 创建着色器程序
         program = GLES20.glCreateProgram();
         GLES20.glAttachShader(program, vertexShader);
         GLES20.glAttachShader(program, fragmentShader);
         GLES20.glLinkProgram(program);
-
+    
         // 检查链接状态
         int[] linkStatus = new int[1];
         GLES20.glGetProgramiv(program, GLES20.GL_LINK_STATUS, linkStatus, 0);
@@ -299,18 +334,33 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
             program = 0;
             return;
         }
-
+    
         // 获取着色器变量句柄
         positionHandle = GLES20.glGetAttribLocation(program, "vPosition");
         texCoordHandle = GLES20.glGetAttribLocation(program, "vTexCoord");
         colorMapHandle = GLES20.glGetUniformLocation(program, "uColorMap");
         mvpMatrixHandle = GLES20.glGetUniformLocation(program, "uMVPMatrix");
-
-        System.out.println("着色器程序创建完成，ID: " + program);
-        System.out.println("位置句柄: " + positionHandle);
-        System.out.println("纹理坐标句柄: " + texCoordHandle);
-        System.out.println("颜色映射句柄: " + colorMapHandle);
-        System.out.println("矩阵句柄: " + mvpMatrixHandle);
+    
+        // 输出更详细的调试信息
+        Log.d("HeatMapRenderer", "着色器程序创建完成，ID: " + program);
+        Log.d("HeatMapRenderer", "位置句柄: " + positionHandle);
+        Log.d("HeatMapRenderer", "纹理坐标句柄: " + texCoordHandle);
+        Log.d("HeatMapRenderer", "颜色映射句柄: " + colorMapHandle);
+        Log.d("HeatMapRenderer", "矩阵句柄: " + mvpMatrixHandle);
+        
+        // 检查BodyModel是否正确初始化
+        if (bodyModel != null) {
+            FloatBuffer vertexBuffer = bodyModel.getVertexBuffer();
+            FloatBuffer texCoordBuffer = bodyModel.getTexCoordBuffer();
+            if (vertexBuffer != null && texCoordBuffer != null) {
+                Log.d("HeatMapRenderer", "顶点缓冲区容量: " + vertexBuffer.capacity());
+                Log.d("HeatMapRenderer", "纹理坐标缓冲区容量: " + texCoordBuffer.capacity());
+            } else {
+                Log.e("HeatMapRenderer", "顶点缓冲区或纹理坐标缓冲区为空");
+            }
+        } else {
+            Log.e("HeatMapRenderer", "BodyModel为空");
+        }
     }
     
     @Override
@@ -332,6 +382,15 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         GLES20.glUniform1f(alphaHandle, alpha);
     
         // 设置变换矩阵
+        // 如果缩放因子改变，重新计算投影矩阵
+        if (scaleChanged) {
+            // 获取当前视口尺寸
+            GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
+            updateProjectionMatrix(viewport[2], viewport[3]);
+            scaleChanged = false;
+        }
+        
+        // 确保设置MVP矩阵 - 这行是关键，确保矩阵被传递给着色器
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
     
         // 设置顶点属性
