@@ -75,6 +75,34 @@
                 android:text="-"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+             <Button
+                android:id="@+id/btn_test_scale"
+                android:layout_width="98dp"
+                android:layout_height="48dp"
+                android:text="测试缩放"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+            <Button
+                android:id="@+id/btn_scale_1"
+                android:layout_width="68dp"
+                android:layout_height="48dp"
+                android:text="0.3"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+             <Button
+                android:id="@+id/btn_scale_2"
+                android:layout_width="68dp"
+                android:layout_height="48dp"
+                android:text="0.6"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+             <Button
+                android:id="@+id/btn_scale_3"
+                android:layout_width="68dp"
+                android:layout_height="48dp"
+                android:text="1"
+                android:textSize="18sp"
+                android:textStyle="bold" />
         </LinearLayout>
 
         <LinearLayout

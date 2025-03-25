@@ -65,13 +65,38 @@ public class HeatMapView extends GLSurfaceView {
     
     // 设置缩放因子
     public void setScaleFactor(float scaleFactor) {
+        // 添加最小值限制
+        if (scaleFactor < 0.1f) {
+            scaleFactor = 0.1f;
+        }
+        
         this.scaleFactor = scaleFactor;
         if (renderer != null) {
             renderer.setScaleFactor(scaleFactor);
             Log.d("HeatMapView", "设置缩放因子: " + scaleFactor);
-            requestRender(); // 强制重新渲染
+            // 强制立即重绘
+            requestRender();
         } else {
             Log.e("HeatMapView", "渲染器为空，无法设置缩放因子");
         }
+    }
+
+    // 添加一个方法用于测试不同的缩放值
+    public void testScaling() {
+        // 测试不同的缩放值
+        new Thread(() -> {
+            try {
+                for (float scale = 0.1f; scale <= 2.0f; scale += 0.1f) {
+                    final float testScale = scale;
+                    post(() -> {
+                        setScaleFactor(testScale);
+                        Log.d("HeatMapView", "测试缩放: " + testScale);
+                    });
+                    Thread.sleep(1000); // 每秒更改一次缩放
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }).start();
     }
 }

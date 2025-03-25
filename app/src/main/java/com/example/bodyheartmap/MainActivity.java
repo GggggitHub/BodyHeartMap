@@ -140,6 +140,41 @@ public class MainActivity extends AppCompatActivity {
 
         // 设置身体部位选择按钮
         setupBodyPartButtons();
+
+        // 在onCreate方法中添加
+        Button btnTestScale = findViewById(R.id.btn_test_scale);
+        if (btnTestScale != null) {
+            btnTestScale.setOnClickListener(v -> {
+                // 测试不同的缩放值
+                heatMapView.testScaling();
+            });
+        }
+
+        // 或者直接设置几个固定的缩放值
+        Button btnScale1 = findViewById(R.id.btn_scale_1);
+        Button btnScale2 = findViewById(R.id.btn_scale_2);
+        Button btnScale3 = findViewById(R.id.btn_scale_3);
+
+        if (btnScale1 != null) {
+            btnScale1.setOnClickListener(v -> {
+                heatMapView.setScaleFactor(0.3f);
+                Toast.makeText(this, "缩放: 0.3", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (btnScale2 != null) {
+            btnScale2.setOnClickListener(v -> {
+                heatMapView.setScaleFactor(0.6f);
+                Toast.makeText(this, "缩放: 0.6", Toast.LENGTH_SHORT).show();
+            });
+        }
+
+        if (btnScale3 != null) {
+            btnScale3.setOnClickListener(v -> {
+                heatMapView.setScaleFactor(1.0f);
+                Toast.makeText(this, "缩放: 1.0", Toast.LENGTH_SHORT).show();
+            });
+        }
     }
 
     // 更新身体部位定义，与assets文件夹中的文件名对应
