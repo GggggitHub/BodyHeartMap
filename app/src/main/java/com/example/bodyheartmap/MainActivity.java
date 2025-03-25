@@ -141,48 +141,87 @@ public class MainActivity extends AppCompatActivity {
         setupBodyPartButtons();
     }
 
+    // 更新身体部位定义，与assets文件夹中的文件名对应
+    private static final String[] BODY_PARTS = {
+//        "head", "neck", "chest", "abdomen", "left_shoulder", "left_arm",
+        "head", "neck", "chest", "left_shoulder", "left_arm",
+        "left_hand", "right_shoulder", "right_arm", "right_hand",
+        "left_thigh", "left_leg", "right_thigh", "right_leg"
+    };
+
+    // 身体部位的中文名称
+    private static final String[] BODY_PART_NAMES = {
+//        "头部", "颈部", "胸部", "腹部", "左肩", "左臂",
+        "头部", "颈部", "上身",  "左肩膀", "左臂",
+        "左手", "右肩膀", "右臂", "右手",
+        "左腿", "左脚", "右腿", "右教"
+    };
+
     private void setupBodyPartButtons() {
-        Button btnHead = findViewById(R.id.btn_head);
-        Button btnTorso = findViewById(R.id.btn_torso);
-        Button btnLeftArm = findViewById(R.id.btn_left_arm);
-        Button btnRightArm = findViewById(R.id.btn_right_arm);
-        Button btnLeftLeg = findViewById(R.id.btn_left_leg);
-        Button btnRightLeg = findViewById(R.id.btn_right_leg);
-
-        View.OnClickListener bodyPartClickListener = v -> {
-            int id = v.getId();
-
-            if (id == R.id.btn_head) {
-                selectedBodyPart = HEAD;
-                Toast.makeText(this, "已选择头部", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.btn_torso) {
-                selectedBodyPart = TORSO;
-                Toast.makeText(this, "已选择躯干", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.btn_left_arm) {
-                selectedBodyPart = LEFT_ARM;
-                Toast.makeText(this, "已选择左臂", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.btn_right_arm) {
-                selectedBodyPart = RIGHT_ARM;
-                Toast.makeText(this, "已选择右臂", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.btn_left_leg) {
-                selectedBodyPart = LEFT_LEG;
-                Toast.makeText(this, "已选择左腿", Toast.LENGTH_SHORT).show();
-            } else if (id == R.id.btn_right_leg) {
-                selectedBodyPart = RIGHT_LEG;
-                Toast.makeText(this, "已选择右腿", Toast.LENGTH_SHORT).show();
-            }
-
-            // 更新滑块值为当前选中部位的平均温度
-            updateTempSliderForSelectedPart();
+        // 身体部位按钮ID数组 - 使用当前XML中已有的按钮
+        int[] buttonIds = {
+            R.id.btn_head, R.id.btn_torso, R.id.btn_left_arm,
+            R.id.btn_right_arm, R.id.btn_left_leg, R.id.btn_right_leg
         };
-
-        btnHead.setOnClickListener(bodyPartClickListener);
-        btnTorso.setOnClickListener(bodyPartClickListener);
-        btnLeftArm.setOnClickListener(bodyPartClickListener);
-        btnRightArm.setOnClickListener(bodyPartClickListener);
-        btnLeftLeg.setOnClickListener(bodyPartClickListener);
-        btnRightLeg.setOnClickListener(bodyPartClickListener);
+        
+        // 按钮与BODY_PARTS的映射关系
+        int[] buttonToBodyPartMap = {
+            0,  // 头部按钮 -> head
+            2,  // 躯干按钮 -> chest (或者可以选择abdomen)
+            5,  // 左臂按钮 -> left_arm
+            8,  // 右臂按钮 -> right_arm
+            10, // 左腿按钮 -> left_thigh
+            12  // 右腿按钮 -> right_thigh
+        };
+        
+        // 当前选中的身体部位索引
+        final int[] selectedPartIndex = {0};
+        
+        // 为每个按钮设置点击监听器
+        for (int i = 0; i < buttonIds.length; i++) {
+            final int index = i;
+            final int bodyPartIndex = buttonToBodyPartMap[i];
+            Button button = findViewById(buttonIds[i]);
+            if (button != null) {  // 确保按钮存在
+                button.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        selectedBodyPart = index;  // 更新全局选中部位变量
+                        selectedPartIndex[0] = bodyPartIndex;  // 使用映射后的索引
+                        updateButtonHighlight(buttonIds, index);
+                        
+                        // 更新温度滑动条的值
+                        updateTempSliderForSelectedPart();
+                        
+                        // 显示选中的身体部位名称
+                        Toast.makeText(MainActivity.this, 
+                                      "已选择: " + BODY_PART_NAMES[bodyPartIndex], 
+                                      Toast.LENGTH_SHORT).show();
+                    }
+                });
+            } else {
+                Log.e(TAG, "按钮未找到: " + index);
+            }
+        }
+        
+        // 默认选中头部
+        updateButtonHighlight(buttonIds, 0);
     }
+
+    // 更新按钮高亮状态
+    private void updateButtonHighlight(int[] buttonIds, int selectedIndex) {
+        for (int i = 0; i < buttonIds.length; i++) {
+            Button button = findViewById(buttonIds[i]);
+            if (button != null) {
+                if (i == selectedIndex) {
+                    button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#3F51B5")));
+                } else {
+                    button.setBackgroundTintList(android.content.res.ColorStateList.valueOf(android.graphics.Color.parseColor("#444444")));
+                }
+            }
+        }
+    }
+
 
     private void updateTempSliderForSelectedPart() {
         // 计算选中部位的平均温度

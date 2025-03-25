@@ -1,128 +1,150 @@
 package com.example.bodyheartmap;
 
+import android.content.Context;
+import android.util.Log;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 public class BodyModel {
+    private static final String TAG = "BodyModel";
+    
     private FloatBuffer vertexBuffer;
     private FloatBuffer texCoordBuffer;
     
     // 身体各部位的顶点索引范围
-    private int[] headIndices;
-    private int[] torsoIndices;
-    private int[] leftArmIndices;
-    private int[] rightArmIndices;
-    private int[] leftLegIndices;
-    private int[] rightLegIndices;
+    private Map<String, int[]> bodyPartIndices;
     
-    public BodyModel() {
-        setupVertexData();
+    // 身体部位名称
+//    private static final String[] BODY_PARTS = {
+//        "head", "neck", "chest", "abdomen", "leftShoulder", "leftArm",
+//        "leftHand", "rightShoulder", "rightArm", "rightHand",
+//        "leftThigh", "leftLeg", "rightThigh", "rightLeg"
+//    };
+    
+    private static final String[] BODY_PARTS = {
+//        "头部", "颈部", "上身", "abdomen", "leftShoulder", "leftArm",
+        "头部", "颈部", "上身",  "左肩膀", "左臂",
+        "左手", "右肩膀", "右臂", "右手",
+        "左腿", "左脚", "右腿", "右脚"
+    };
+
+    // 总顶点数 - 将在加载坐标后确定
+    private int totalVertices = 0;
+    
+    // 构造函数
+    public BodyModel(Context context) {
+        loadBodyPartsFromAssets(context);
     }
     
-    private void setupVertexData() {
-        // 人体模型顶点坐标 - 更精确的人体轮廓
-        float[] vertices = {
-            // 头部 (6个顶点形成圆形)
-            0.0f,  0.85f, 0.0f,  // 顶部中心
-            -0.1f, 0.75f, 0.0f,  // 左上
-            -0.15f, 0.65f, 0.0f, // 左侧
-            0.0f,  0.6f, 0.0f,   // 底部
-            0.15f, 0.65f, 0.0f,  // 右侧
-            0.1f,  0.75f, 0.0f,  // 右上
-            
-            // 躯干 (6个顶点)
-            -0.2f, 0.6f, 0.0f,   // 左肩
-            -0.25f, 0.3f, 0.0f,  // 左腰
-            -0.2f, 0.0f, 0.0f,   // 左胯
-            0.2f,  0.0f, 0.0f,   // 右胯
-            0.25f, 0.3f, 0.0f,   // 右腰
-            0.2f,  0.6f, 0.0f,   // 右肩
-            
-            // 左臂 (6个顶点)
-            -0.2f, 0.6f, 0.0f,   // 肩部连接点
-            -0.3f, 0.55f, 0.0f,  // 上臂外侧
-            -0.4f, 0.4f, 0.0f,   // 肘部
-            -0.45f, 0.25f, 0.0f, // 前臂外侧
-            -0.4f, 0.15f, 0.0f,  // 手腕
-            -0.3f, 0.3f, 0.0f,   // 内侧回连
-            
-            // 右臂 (6个顶点)
-            0.2f,  0.6f, 0.0f,   // 肩部连接点
-            0.3f,  0.55f, 0.0f,  // 上臂外侧
-            0.4f,  0.4f, 0.0f,   // 肘部
-            0.45f, 0.25f, 0.0f,  // 前臂外侧
-            0.4f,  0.15f, 0.0f,  // 手腕
-            0.3f,  0.3f, 0.0f,   // 内侧回连
-            
-            // 左腿 (6个顶点)
-            -0.2f, 0.0f, 0.0f,   // 胯部连接点
-            -0.25f, -0.2f, 0.0f, // 大腿外侧
-            -0.2f, -0.4f, 0.0f,  // 膝盖
-            -0.25f, -0.6f, 0.0f, // 小腿外侧
-            -0.2f, -0.8f, 0.0f,  // 脚踝
-            -0.1f, 0.0f, 0.0f,   // 内侧回连
-            
-            // 右腿 (6个顶点)
-            0.2f,  0.0f, 0.0f,   // 胯部连接点
-            0.25f, -0.2f, 0.0f,  // 大腿外侧
-            0.2f,  -0.4f, 0.0f,  // 膝盖
-            0.25f, -0.6f, 0.0f,  // 小腿外侧
-            0.2f,  -0.8f, 0.0f,  // 脚踝
-            0.1f,  0.0f, 0.0f    // 内侧回连
-        };
+    // 从assets加载身体部位坐标
+    private void loadBodyPartsFromAssets(Context context) {
+        Map<String, List<float[]>> bodyPartsCoordinates = new HashMap<>();
         
-        // 纹理坐标 - 根据温度设置不同的值
-        // 使用x坐标作为热力图索引 (0.0-1.0)
-        float[] texCoords = {
-            // 头部 - 中等温度 (0.5-0.6)
-            0.55f, 0.5f,
-            0.53f, 0.5f,
-            0.52f, 0.5f,
-            0.54f, 0.5f,
-            0.56f, 0.5f,
-            0.58f, 0.5f,
+        // 初始化身体部位索引映射
+        bodyPartIndices = new HashMap<>();
+        
+        // 为每个身体部位加载坐标
+        for (String part : BODY_PARTS) {
+            try {
+                List<float[]> coordinates = loadCoordinatesFromAsset(context, part + ".json");
+                bodyPartsCoordinates.put(part, coordinates);
+                totalVertices += coordinates.size();
+            } catch (IOException e) {
+                Log.e(TAG, "无法加载身体部位坐标: " + part, e);
+            }
+        }
+        
+        // 创建顶点和纹理坐标缓冲区
+        setupBuffers(bodyPartsCoordinates);
+    }
+    
+    // 从资源文件加载坐标
+    private List<float[]> loadCoordinatesFromAsset(Context context, String filename) throws IOException {
+        List<float[]> coordinates = new ArrayList<>();
+        InputStream is = context.getAssets().open(filename);
+        
+        try {
+            // 读取JSON文件内容
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonString.append(line);
+            }
             
-            // 躯干 - 较高温度 (0.6-0.8)
-            0.65f, 0.5f,
-            0.70f, 0.5f,
-            0.75f, 0.5f,
-            0.75f, 0.5f,
-            0.70f, 0.5f,
-            0.65f, 0.5f,
+            // 解析JSON数组
+            JSONArray jsonArray = new JSONArray(jsonString.toString());
+            for (int i = 0; i < jsonArray.length(); i++) {
+                JSONArray pointArray = jsonArray.getJSONArray(i);
+                if (pointArray.length() >= 2) {
+                    float x = (float) pointArray.getDouble(0);
+                    float y = (float) pointArray.getDouble(1);
+                    
+                    // 坐标归一化处理（可选，取决于您的坐标系统）
+                    // 假设原始坐标范围是0-1000，转换为-1到1的OpenGL坐标系
+                    float normalizedX = (x / 500.0f) - 1.0f;
+                    float normalizedY = 1.0f - (y / 500.0f); // Y轴方向通常需要翻转
+                    
+                    coordinates.add(new float[]{normalizedX, normalizedY, 0.0f});
+                }
+            }
+        } catch (JSONException e) {
+            Log.e(TAG, "解析JSON文件失败: " + filename, e);
+            throw new IOException("JSON解析错误", e);
+        } finally {
+            is.close();
+        }
+        
+        return coordinates;
+    }
+    
+    // 设置顶点和纹理坐标缓冲区
+    private void setupBuffers(Map<String, List<float[]>> bodyPartsCoordinates) {
+        // 创建顶点数组
+        float[] vertices = new float[totalVertices * 3]; // 每个顶点3个坐标(x,y,z)
+        float[] texCoords = new float[totalVertices * 2]; // 每个顶点2个纹理坐标(s,t)
+        
+        int vertexOffset = 0;
+        int indexOffset = 0;
+        
+        // 为每个身体部位设置顶点和纹理坐标
+        for (String part : BODY_PARTS) {
+            List<float[]> coordinates = bodyPartsCoordinates.get(part);
+            if (coordinates == null) {
+                continue;
+            }
             
-            // 左臂 - 中等温度 (0.4-0.5)
-            0.45f, 0.5f,
-            0.43f, 0.5f,
-            0.42f, 0.5f,
-            0.40f, 0.5f,
-            0.41f, 0.5f,
-            0.44f, 0.5f,
+            // 记录该部位的起始索引和顶点数量
+            int startIndex = indexOffset;
+            int vertexCount = coordinates.size();
+            bodyPartIndices.put(part, new int[]{startIndex, vertexCount});
             
-            // 右臂 - 中等温度 (0.5-0.6)
-            0.52f, 0.5f,
-            0.53f, 0.5f,
-            0.55f, 0.5f,
-            0.56f, 0.5f,
-            0.54f, 0.5f,
-            0.53f, 0.5f,
-            
-            // 左腿 - 较低温度 (0.3-0.4)
-            0.35f, 0.5f,
-            0.33f, 0.5f,
-            0.32f, 0.5f,
-            0.30f, 0.5f,
-            0.31f, 0.5f,
-            0.34f, 0.5f,
-            
-            // 右腿 - 较低温度 (0.3-0.5)
-            0.40f, 0.5f,
-            0.38f, 0.5f,
-            0.36f, 0.5f,
-            0.35f, 0.5f,
-            0.37f, 0.5f,
-            0.39f, 0.5f
-        };
+            // 复制顶点坐标
+            for (float[] coord : coordinates) {
+                vertices[vertexOffset++] = coord[0];
+                vertices[vertexOffset++] = coord[1];
+                vertices[vertexOffset++] = coord[2];
+                
+                // 设置默认纹理坐标 - 温度值0.5，透明度1.0
+                texCoords[indexOffset * 2] = 0.5f;
+                texCoords[indexOffset * 2 + 1] = 1.0f;
+                
+                indexOffset++;
+            }
+        }
         
         // 创建顶点缓冲区
         ByteBuffer bb = ByteBuffer.allocateDirect(vertices.length * 4);
@@ -138,15 +160,56 @@ public class BodyModel {
         texCoordBuffer.put(texCoords);
         texCoordBuffer.position(0);
         
-        // 设置身体部位索引 - 第一个值是起始索引，第二个值是顶点数量
-        headIndices = new int[]{0, 6};
-        torsoIndices = new int[]{6, 6};
-        leftArmIndices = new int[]{12, 6};
-        rightArmIndices = new int[]{18, 6};
-        leftLegIndices = new int[]{24, 6};
-        rightLegIndices = new int[]{30, 6};
+        Log.i(TAG, "身体模型初始化完成，总顶点数: " + totalVertices);
     }
     
+    // 更新纹理坐标 - 支持13个身体部位的温度和透明度
+    public void updateTextureCoordinates(float[] temperatures, float globalAlpha) {
+        if (temperatures == null || temperatures.length < BODY_PARTS.length) {
+            Log.e(TAG, "温度数据不足，需要至少 " + BODY_PARTS.length + " 个值");
+            return;
+        }
+        
+        // 创建新的纹理坐标数组
+        float[] texCoords = new float[totalVertices * 2];
+        
+        // 为每个身体部位设置温度和透明度
+        for (int i = 0; i < BODY_PARTS.length; i++) {
+            String part = BODY_PARTS[i];
+            int[] indices = bodyPartIndices.get(part);
+            if (indices == null) {
+                continue;
+            }
+            
+            int startIndex = indices[0];
+            int vertexCount = indices[1];
+            float normalizedTemp = normalizeTemperature(temperatures[i]);
+            
+            // 为该部位的所有顶点设置相同的温度和透明度
+            for (int j = 0; j < vertexCount; j++) {
+                int index = startIndex + j;
+                texCoords[index * 2] = normalizedTemp;
+                texCoords[index * 2 + 1] = globalAlpha;
+            }
+        }
+        
+        // 更新纹理坐标缓冲区
+        texCoordBuffer.position(0);
+        texCoordBuffer.put(texCoords);
+        texCoordBuffer.position(0);
+        
+        Log.i(TAG, "纹理坐标已更新，全局透明度: " + globalAlpha);
+    }
+    
+    // 将温度值归一化到0-1范围
+    private float normalizeTemperature(float temperature) {
+        // 假设温度范围在35-42度之间
+        float normalizedTemp = (temperature - 35.0f) / 7.0f;
+        // 限制在0-1范围内
+        return Math.max(0.0f, Math.min(1.0f, normalizedTemp));
+    }
+    
+    // Getter方法
     public FloatBuffer getVertexBuffer() {
         return vertexBuffer;
     }
@@ -155,104 +218,11 @@ public class BodyModel {
         return texCoordBuffer;
     }
     
-    public int[] getHeadIndices() {
-        return headIndices;
+    public Map<String, int[]> getBodyPartIndices() {
+        return bodyPartIndices;
     }
     
-    public int[] getTorsoIndices() {
-        return torsoIndices;
-    }
-    
-    public int[] getLeftArmIndices() {
-        return leftArmIndices;
-    }
-    
-    public int[] getRightArmIndices() {
-        return rightArmIndices;
-    }
-    
-    public int[] getLeftLegIndices() {
-        return leftLegIndices;
-    }
-    
-    public int[] getRightLegIndices() {
-        return rightLegIndices;
-    }
-    
-    // 添加一个方法来更新纹理坐标，并支持透明度
-    public void updateTextureCoordinates(float[] temperatures, float alpha) {
-        if (temperatures == null || temperatures.length < 6) {
-            System.err.println("温度数据不足，无法更新纹理坐标");
-            return;
-        }
-        
-        // 创建新的纹理坐标数组
-        float[] texCoords = new float[36 * 2]; // 6个部位，每个部位6个顶点，每个顶点2个纹理坐标
-        
-        // 为每个身体部位设置温度对应的纹理坐标
-        // 头部 - 使用temperatures[0]
-        float headTemp = normalizeTemperature(temperatures[0]);
-        for (int i = 0; i < 6; i++) {
-            texCoords[i*2] = headTemp;
-            texCoords[i*2+1] = alpha; // 使用第二个纹理坐标分量存储透明度
-        }
-        
-        // 躯干 - 使用temperatures[1]
-        float torsoTemp = normalizeTemperature(temperatures[1 * 4]);
-        for (int i = 6; i < 12; i++) {
-            texCoords[i*2] = torsoTemp;
-            texCoords[i*2+1] = alpha;
-//            texCoords[i*2+1] = 1.0f;
-        }
-        
-        // 左臂 - 使用temperatures[2]
-        float leftArmTemp = normalizeTemperature(temperatures[2 * 4]);
-        for (int i = 12; i < 18; i++) {
-            texCoords[i*2] = leftArmTemp;
-            texCoords[i*2+1] = alpha;
-        }
-        
-        // 右臂 - 使用temperatures[3]
-        float rightArmTemp = normalizeTemperature(temperatures[3 * 4]);
-        for (int i = 18; i < 24; i++) {
-            texCoords[i*2] = rightArmTemp;
-            texCoords[i*2+1] = alpha;
-        }
-        
-        // 左腿 - 使用temperatures[4]
-        float leftLegTemp = normalizeTemperature(temperatures[4 * 4]);
-        for (int i = 24; i < 30; i++) {
-            texCoords[i*2] = leftLegTemp;
-            texCoords[i*2+1] = alpha;
-        }
-        
-        // 右腿 - 使用temperatures[5]
-        float rightLegTemp = normalizeTemperature(temperatures[5 * 4]);
-        for (int i = 30; i < 36; i++) {
-            texCoords[i*2] = rightLegTemp;
-            texCoords[i*2+1] = alpha;
-        }
-        
-        // 更新纹理坐标缓冲区
-        texCoordBuffer.position(0);
-        texCoordBuffer.put(texCoords);
-        texCoordBuffer.position(0);
-        
-        System.out.println("纹理坐标已更新 - 头部:" + headTemp + 
-                          ", 躯干:" + torsoTemp + 
-                          ", 左臂:" + leftArmTemp + 
-                          ", 右臂:" + rightArmTemp + 
-                          ", 左腿:" + leftLegTemp + 
-                          ", 右腿:" + rightLegTemp + 
-                          ", 透明度:" + alpha);
-    }
-
-    
-    // 将温度值归一化到0-1范围
-    private float normalizeTemperature(float temperature) {
-        // 假设温度范围在35-42度之间
-        float normalizedTemp = (temperature - 35.0f) / 7.0f;
-        // 限制在0-1范围内
-        return Math.max(0.0f, Math.min(1.0f, normalizedTemp));
+    public int getTotalVertices() {
+        return totalVertices;
     }
 }

@@ -8,6 +8,7 @@ import android.opengl.Matrix;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
+import java.util.Map;
 
 import javax.microedition.khronos.egl.EGLConfig;
 import javax.microedition.khronos.opengles.GL10;
@@ -42,19 +43,27 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
     
     public HeatMapRenderer(Context context) {
         this.context = context;
-        bodyModel = new BodyModel();
+        bodyModel = new BodyModel(context);
         setupTemperatureData();
     }
     
     private void setupTemperatureData() {
-        // 初始化温度数据，对应每个身体部位的顶点
+        // 初始化温度数据，对应13个身体部位
         temperatureData = new float[] {
-            36.5f, 36.6f, 36.7f, 36.5f, // 头部
-            36.7f, 36.9f, 37.1f, 36.8f, // 躯干
-            36.6f, 36.4f, 36.5f, 36.7f, // 左臂
-            36.7f, 36.5f, 36.6f, 36.8f, // 右臂
-            36.3f, 36.4f, 36.6f, 36.5f, // 左腿
-            36.4f, 36.5f, 36.7f, 36.6f  // 右腿
+            36.5f, // 头部
+            36.6f, // 颈部
+            36.7f, // 胸部
+            36.8f, // 腹部
+            36.6f, // 左肩
+            36.4f, // 左臂
+            36.3f, // 左手
+            36.7f, // 右肩
+            36.5f, // 右臂
+            36.4f, // 右手
+            36.3f, // 左大腿
+            36.2f, // 左小腿
+            36.4f, // 右大腿
+            36.3f  // 右小腿
         };
     }
 
@@ -317,49 +326,41 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         
         // 使用着色器程序
         GLES20.glUseProgram(program);
-
+    
         // 设置透明度uniform
         int alphaHandle = GLES20.glGetUniformLocation(program, "uAlpha");
         GLES20.glUniform1f(alphaHandle, alpha);
-
-        // 设置顶点属性
-        GLES20.glEnableVertexAttribArray(positionHandle);
-        GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT, false, 0, bodyModel.getVertexBuffer());
-        
-        // 设置纹理坐标 - 确保每次都重新绑定最新的纹理坐标
-        if (texCoordHandle != -1) {
-            GLES20.glEnableVertexAttribArray(texCoordHandle);
-            GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 0, bodyModel.getTexCoordBuffer());
-        } else {
-            System.err.println("纹理坐标句柄无效");
-        }
-        
+    
         // 设置变换矩阵
         GLES20.glUniformMatrix4fv(mvpMatrixHandle, 1, false, mvpMatrix, 0);
-        
+    
+        // 设置顶点属性
+        GLES20.glVertexAttribPointer(positionHandle, 3, GLES20.GL_FLOAT, false, 0, bodyModel.getVertexBuffer());
+        GLES20.glEnableVertexAttribArray(positionHandle);
+    
+        // 设置纹理坐标属性
+        GLES20.glVertexAttribPointer(texCoordHandle, 2, GLES20.GL_FLOAT, false, 0, bodyModel.getTexCoordBuffer());
+        GLES20.glEnableVertexAttribArray(texCoordHandle);
+    
         // 设置颜色映射纹理
         GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, colorMapTexture);
         GLES20.glUniform1i(colorMapHandle, 0);
-        
-        // 绘制人体各部位
-        drawBodyPart(bodyModel.getHeadIndices());
-        drawBodyPart(bodyModel.getTorsoIndices());
-        drawBodyPart(bodyModel.getLeftArmIndices());
-        drawBodyPart(bodyModel.getRightArmIndices());
-        drawBodyPart(bodyModel.getLeftLegIndices());
-        drawBodyPart(bodyModel.getRightLegIndices());
-        
-        // 禁用顶点数组
-        GLES20.glDisableVertexAttribArray(positionHandle);
-        if (texCoordHandle != -1) {
-            GLES20.glDisableVertexAttribArray(texCoordHandle);
+    
+        // 绘制所有身体部位
+        Map<String, int[]> bodyPartIndices = bodyModel.getBodyPartIndices();
+        for (Map.Entry<String, int[]> entry : bodyPartIndices.entrySet()) {
+            int[] indices = entry.getValue();
+            int startIndex = indices[0];
+            int vertexCount = indices[1];
+            
+            // 使用三角形扇形绘制每个身体部位
+            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, startIndex, vertexCount);
         }
-        
-        // 重置需要重绘标志
-        needsRedraw = false;
-        
-        System.out.println("人体热力图渲染完成");
+    
+        // 禁用顶点属性数组
+        GLES20.glDisableVertexAttribArray(positionHandle);
+        GLES20.glDisableVertexAttribArray(texCoordHandle);
     }
     
     // 添加drawBodyPart方法，确保使用正确的绘制模式
