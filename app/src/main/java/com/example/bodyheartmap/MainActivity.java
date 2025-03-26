@@ -142,6 +142,20 @@ public class MainActivity extends AppCompatActivity {
         setupBodyPartButtons();
 
         // 在onCreate方法中添加
+        findViewById(R.id.btn_zoom_in).setOnClickListener(v -> {
+            currentScale += 0.1f;
+            if (currentScale > 3.0f) {
+                currentScale = 3.0f;
+            }
+            heatMapView.setScaleFactor(currentScale);
+        });
+        findViewById(R.id.btn_zoom_out).setOnClickListener(v -> {
+            currentScale -= 0.1f;
+            if (currentScale < 0.1f) {
+                currentScale = 0.1f;
+            }
+            heatMapView.setScaleFactor(currentScale);
+        });
         Button btnTestScale = findViewById(R.id.btn_test_scale);
         if (btnTestScale != null) {
             btnTestScale.setOnClickListener(v -> {
