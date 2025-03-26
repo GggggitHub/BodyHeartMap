@@ -125,21 +125,21 @@ public class HeatMapView extends GLSurfaceView {
 
     // 向上移动
     public void moveUp(float step) {
-        setOffsetY(offsetY + step);
+        setOffsetY(offsetY - step);
     }
 
     // 向下移动
     public void moveDown(float step) {
-        setOffsetY(offsetY - step);
+        setOffsetY(offsetY + step);
     }
 
     // 向左移动
     public void moveLeft(float step) {
-        setOffsetX(offsetX - step);
+        setOffsetX(offsetX + step);
     }
 
     // 向右移动
     public void moveRight(float step) {
-        setOffsetX(offsetX + step);
+        setOffsetX(offsetX - step);
     }
 }

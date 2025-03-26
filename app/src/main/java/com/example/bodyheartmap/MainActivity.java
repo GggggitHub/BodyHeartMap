@@ -42,7 +42,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     // 当前选中的身体部位
-    private volatile int selectedBodyPart = TORSO;
+    private volatile int selectedBodyPart = HEAD;
     // 在布局文件中添加一个SeekBar用于调节透明度
     // 在MainActivity中添加透明度控制
     private SeekBar alphaSeekBar;
@@ -57,14 +57,22 @@ public class MainActivity extends AppCompatActivity {
 
         heatMapView = findViewById(R.id.heat_map_view);
 
-        // 初始化温度数据（示例数据）
+        // 初始化温度数据（13个身体部位，每个部位4个点）
+        // 初始化温度数据（每个部位只存储一个温度值）
         temperatureData = new float[]{
-                36.5f, 36.6f, 36.7f, 36.5f, // 头部
-                36.7f, 36.9f, 37.1f, 36.8f, // 躯干
-                36.6f, 36.4f, 36.5f, 36.7f, // 左臂
-                36.7f, 36.5f, 36.6f, 36.8f, // 右臂
-                36.3f, 36.4f, 36.6f, 36.5f, // 左腿
-                36.4f, 36.5f, 36.7f, 36.6f  // 右腿
+                37.5f, // 头部
+                36.6f, // 颈部
+                38.7f, // 上身
+                36.8f, // 左肩膀
+                36.9f, // 左臂
+                35.0f, // 左手
+                36.9f, // 右肩膀
+                36.8f, // 右臂
+                35.7f, // 右手
+                36.6f, // 左腿
+                35.5f, // 左脚
+                36.6f, // 右腿
+                35.7f  // 右脚
         };
 
         // 更新热力图
@@ -240,20 +248,17 @@ public class MainActivity extends AppCompatActivity {
     };
 
     private void setupBodyPartButtons() {
-        // 身体部位按钮ID数组 - 使用当前XML中已有的按钮
+        // 身体部位按钮ID数组 - 使用新添加的13个按钮
         int[] buttonIds = {
-            R.id.btn_head, R.id.btn_torso, R.id.btn_left_arm,
-            R.id.btn_right_arm, R.id.btn_left_leg, R.id.btn_right_leg
+            R.id.btn_head, R.id.btn_neck, R.id.btn_chest, 
+            R.id.btn_left_shoulder, R.id.btn_left_arm, R.id.btn_left_hand,
+            R.id.btn_right_shoulder, R.id.btn_right_arm, R.id.btn_right_hand,
+            R.id.btn_left_thigh, R.id.btn_left_leg, R.id.btn_right_thigh, R.id.btn_right_leg
         };
         
-        // 按钮与BODY_PARTS的映射关系
+        // 按钮与BODY_PARTS的映射关系 - 现在是一一对应的
         int[] buttonToBodyPartMap = {
-            0,  // 头部按钮 -> head
-            2,  // 躯干按钮 -> chest (或者可以选择abdomen)
-            5,  // 左臂按钮 -> left_arm
-            8,  // 右臂按钮 -> right_arm
-            10, // 左腿按钮 -> left_thigh
-            12  // 右腿按钮 -> right_thigh
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12
         };
         
         // 当前选中的身体部位索引
@@ -307,12 +312,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateTempSliderForSelectedPart() {
         // 计算选中部位的平均温度
-        float avgTemp = 0;
-        int startIdx = selectedBodyPart * 4;
-        for (int i = 0; i < 4; i++) {
-            avgTemp += temperatureData[startIdx + i];
-        }
-        avgTemp /= 4;
+        float avgTemp = temperatureData[selectedBodyPart];
 
         // 更新滑块和温度显示
         SeekBar seekBarTemp = findViewById(R.id.seek_bar_temp);
@@ -357,14 +357,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void updateSelectedAreaTemperature(float temperature, float alpha) {
-        Log.e(TAG, "updateSelectedAreaTemperature: 更新的区域是" + bodyPartNames[selectedBodyPart] + "      温度是" + temperature + "度");
         // 更新特定区域的温度
-        int startIdx = selectedBodyPart * 4;
-        for (int i = 0; i < 4; i++) {
-            temperatureData[startIdx + i] = temperature;
-        }
-
-
+        temperatureData[selectedBodyPart] = temperature;
 
         // 更新热力图
         heatMapView.updateTemperatureData(temperatureData, alpha);

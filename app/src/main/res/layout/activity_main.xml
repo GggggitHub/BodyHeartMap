@@ -154,6 +154,12 @@
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="8dp">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="全局透明度:"
+                android:textColor="#FFFFFF"
+                android:layout_gravity="center_vertical"/>
             <SeekBar
                 android:id="@+id/alphaSeekBar"
                 android:layout_width="0dp"
@@ -170,7 +176,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="透明度: 100%"
-                android:layout_margin="16dp"/>
+                android:textColor="#FFFFFF"
+                android:layout_gravity="center_vertical"/>
         </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
@@ -210,6 +217,8 @@
             android:textColor="#FFFFFF"
             android:layout_marginTop="8dp" />
 
+        <!-- 替换原有的身体部位按钮部分 -->
+        <!-- 第一行按钮 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -226,11 +235,37 @@
                 android:backgroundTint="#444444" />
 
             <Button
-                android:id="@+id/btn_torso"
+                android:id="@+id/btn_neck"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
-                android:text="躯干"
+                android:text="颈部"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
+
+            <Button
+                android:id="@+id/btn_chest"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="上身"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
+        </LinearLayout>
+
+        <!-- 第二行按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btn_left_shoulder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左肩膀"
                 android:textSize="12sp"
                 android:backgroundTint="#444444" />
 
@@ -242,13 +277,32 @@
                 android:text="左臂"
                 android:textSize="12sp"
                 android:backgroundTint="#444444" />
+
+            <Button
+                android:id="@+id/btn_left_hand"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左手"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
         </LinearLayout>
 
+        <!-- 第三行按钮 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal"
             android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btn_right_shoulder"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右肩膀"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
 
             <Button
                 android:id="@+id/btn_right_arm"
@@ -260,7 +314,24 @@
                 android:backgroundTint="#444444" />
 
             <Button
-                android:id="@+id/btn_left_leg"
+                android:id="@+id/btn_right_hand"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右手"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
+        </LinearLayout>
+
+        <!-- 第四行按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btn_left_thigh"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
@@ -269,11 +340,37 @@
                 android:backgroundTint="#444444" />
 
             <Button
-                android:id="@+id/btn_right_leg"
+                android:id="@+id/btn_left_leg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="左脚"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
+        </LinearLayout>
+
+        <!-- 第五行按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginTop="4dp">
+
+            <Button
+                android:id="@+id/btn_right_thigh"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight="1"
                 android:text="右腿"
+                android:textSize="12sp"
+                android:backgroundTint="#444444" />
+
+            <Button
+                android:id="@+id/btn_right_leg"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="右脚"
                 android:textSize="12sp"
                 android:backgroundTint="#444444" />
         </LinearLayout>
