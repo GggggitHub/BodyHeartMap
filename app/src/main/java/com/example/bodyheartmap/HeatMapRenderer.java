@@ -94,6 +94,30 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         updateProjectionMatrix(width, height);
     }
 
+
+    // 在类成员变量中添加
+    private float offsetX = 0.0f; // X轴偏移量
+    private float offsetY = 0.0f; // Y轴偏移量
+    private boolean positionChanged = false; // 位置是否改变
+
+    // 设置X轴偏移
+    public void setOffsetX(float offsetX) {
+        if (this.offsetX != offsetX) {
+            this.offsetX = offsetX;
+            positionChanged = true;
+            Log.d("HeatMapRenderer", "X轴偏移已设置为: " + offsetX);
+        }
+    }
+
+    // 设置Y轴偏移
+    public void setOffsetY(float offsetY) {
+        if (this.offsetY != offsetY) {
+            this.offsetY = offsetY;
+            positionChanged = true;
+            Log.d("HeatMapRenderer", "Y轴偏移已设置为: " + offsetY);
+        }
+    }
+
     // 修改投影矩阵计算方法
     private void updateProjectionMatrix(int width, int height) {
         float ratio = (float) width / height;
@@ -103,16 +127,19 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
 
         // 使用正交投影，直接使用scaleFactor缩放视口
         // 注意：较大的scaleFactor会使图像变小，较小的scaleFactor会使图像变大
-        float left = -ratio / scaleFactor;
-        float right = ratio / scaleFactor;
-        float bottom = -1.0f / scaleFactor;
-        float top = 1.0f / scaleFactor;
+        // 使用正交投影，应用缩放因子和偏移量
+        float left = -ratio / scaleFactor + offsetX;
+        float right = ratio / scaleFactor + offsetX;
+        float bottom = -1.0f / scaleFactor + offsetY;
+        float top = 1.0f / scaleFactor + offsetY;
 
         Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
 
         // 记录当前使用的视口范围，用于调试
         Log.d("HeatMapRenderer", "视口范围: left=" + left + ", right=" + right +
-                ", bottom=" + bottom + ", top=" + top + ", scaleFactor=" + scaleFactor);
+                ", bottom=" + bottom + ", top=" + top +
+                ", scaleFactor=" + scaleFactor +
+                ", offsetX=" + offsetX + ", offsetY=" + offsetY);
 
         // 设置视图矩阵，将相机放在z轴上
         Matrix.setLookAtM(viewMatrix, 0,
@@ -390,14 +417,14 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         GLES20.glUniform1f(alphaHandle, alpha);
 
         // 如果缩放因子改变，重新计算投影矩阵
-        if (scaleChanged) {
+        if (scaleChanged || positionChanged) {
             // 获取当前视口尺寸
             GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
             updateProjectionMatrix(viewport[2], viewport[3]);
             scaleChanged = false;
-
+            positionChanged = false;
             // 打印日志确认缩放因子已应用
-            Log.d("HeatMapRenderer", "应用新的缩放因子: " + scaleFactor);
+            Log.d("HeatMapRenderer", "应用新的缩放因子: " + scaleFactor );
         }
 
         // 确保设置MVP矩阵 - 这行是关键，确保矩阵被传递给着色器

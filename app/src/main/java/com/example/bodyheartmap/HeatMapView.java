@@ -99,4 +99,47 @@ public class HeatMapView extends GLSurfaceView {
             }
         }).start();
     }
+
+    private float offsetX = 0.0f; // X轴偏移量
+    private float offsetY = 0.0f; // Y轴偏移量
+
+    // 设置X轴偏移
+    public void setOffsetX(float offsetX) {
+        this.offsetX = offsetX;
+        if (renderer != null) {
+            renderer.setOffsetX(offsetX);
+            Log.d("HeatMapView", "设置X轴偏移: " + offsetX);
+            requestRender(); // 强制重新渲染
+        }
+    }
+
+    // 设置Y轴偏移
+    public void setOffsetY(float offsetY) {
+        this.offsetY = offsetY;
+        if (renderer != null) {
+            renderer.setOffsetY(offsetY);
+            Log.d("HeatMapView", "设置Y轴偏移: " + offsetY);
+            requestRender(); // 强制重新渲染
+        }
+    }
+
+    // 向上移动
+    public void moveUp(float step) {
+        setOffsetY(offsetY + step);
+    }
+
+    // 向下移动
+    public void moveDown(float step) {
+        setOffsetY(offsetY - step);
+    }
+
+    // 向左移动
+    public void moveLeft(float step) {
+        setOffsetX(offsetX - step);
+    }
+
+    // 向右移动
+    public void moveRight(float step) {
+        setOffsetX(offsetX + step);
+    }
 }

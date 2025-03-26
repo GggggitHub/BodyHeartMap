@@ -75,13 +75,6 @@
                 android:text="-"
                 android:textSize="18sp"
                 android:textStyle="bold" />
-             <Button
-                android:id="@+id/btn_test_scale"
-                android:layout_width="98dp"
-                android:layout_height="48dp"
-                android:text="测试缩放"
-                android:textSize="18sp"
-                android:textStyle="bold" />
             <Button
                 android:id="@+id/btn_scale_1"
                 android:layout_width="68dp"
@@ -103,8 +96,59 @@
                 android:text="1"
                 android:textSize="18sp"
                 android:textStyle="bold" />
+            <Button
+                android:id="@+id/btn_test_scale"
+                android:layout_width="98dp"
+                android:layout_height="48dp"
+                android:text="测试缩放"
+                android:textSize="18sp"
+                android:textStyle="bold" />
         </LinearLayout>
+        <!-- 在适当位置添加位置控制按钮 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:gravity="center">
 
+            <Button
+                android:id="@+id/btn_move_left"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="←"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <LinearLayout
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:orientation="vertical">
+
+                <Button
+                    android:id="@+id/btn_move_up"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:text="↑"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+
+                <Button
+                    android:id="@+id/btn_move_down"
+                    android:layout_width="48dp"
+                    android:layout_height="48dp"
+                    android:text="↓"
+                    android:textSize="18sp"
+                    android:textStyle="bold" />
+            </LinearLayout>
+
+            <Button
+                android:id="@+id/btn_move_right"
+                android:layout_width="48dp"
+                android:layout_height="48dp"
+                android:text="→"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+        </LinearLayout>
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

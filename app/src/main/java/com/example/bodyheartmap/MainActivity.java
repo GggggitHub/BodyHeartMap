@@ -143,14 +143,14 @@ public class MainActivity extends AppCompatActivity {
 
         // 在onCreate方法中添加
         findViewById(R.id.btn_zoom_in).setOnClickListener(v -> {
-            currentScale += 0.1f;
+            currentScale += 0.01f;
             if (currentScale > 3.0f) {
                 currentScale = 3.0f;
             }
             heatMapView.setScaleFactor(currentScale);
         });
         findViewById(R.id.btn_zoom_out).setOnClickListener(v -> {
-            currentScale -= 0.1f;
+            currentScale -= 0.01f;
             if (currentScale < 0.1f) {
                 currentScale = 0.1f;
             }
@@ -187,6 +187,38 @@ public class MainActivity extends AppCompatActivity {
             btnScale3.setOnClickListener(v -> {
                 heatMapView.setScaleFactor(1.0f);
                 Toast.makeText(this, "缩放: 1.0", Toast.LENGTH_SHORT).show();
+            });
+        }
+        // 在onCreate方法中添加位置控制按钮的监听器
+        Button btnMoveUp = findViewById(R.id.btn_move_up);
+        Button btnMoveDown = findViewById(R.id.btn_move_down);
+        Button btnMoveLeft = findViewById(R.id.btn_move_left);
+        Button btnMoveRight = findViewById(R.id.btn_move_right);
+        
+        // 设置移动步长
+        final float moveStep = 0.01f;
+        
+        if (btnMoveUp != null) {
+            btnMoveUp.setOnClickListener(v -> {
+                heatMapView.moveUp(moveStep);
+            });
+        }
+        
+        if (btnMoveDown != null) {
+            btnMoveDown.setOnClickListener(v -> {
+                heatMapView.moveDown(moveStep);
+            });
+        }
+        
+        if (btnMoveLeft != null) {
+            btnMoveLeft.setOnClickListener(v -> {
+                heatMapView.moveLeft(moveStep);
+            });
+        }
+        
+        if (btnMoveRight != null) {
+            btnMoveRight.setOnClickListener(v -> {
+                heatMapView.moveRight(moveStep);
             });
         }
     }
