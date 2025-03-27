@@ -127,102 +127,36 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         // 重置投影矩阵
         Matrix.setIdentityM(projectionMatrix, 0);
 
-        if (useOld){
-            // 使用正交投影，直接使用scaleFactor缩放视口
-            // 注意：较大的scaleFactor会使图像变小，较小的scaleFactor会使图像变大
-            // 使用正交投影，应用缩放因子和偏移量
-            float left = -ratio / scaleFactor + offsetX;
-            float right = ratio / scaleFactor + offsetX;
-            float bottom = -1.0f / scaleFactor + offsetY;
-            float top = 1.0f / scaleFactor + offsetY;
 
-            //Matrix.orthoM (正交投影)
-            //- projectionMatrix : 存储结果矩阵的数组
-            //- 0 : 结果矩阵在数组中的起始偏移量
-            //- -ratio, ratio : 视景体的左右边界（根据屏幕宽高比调整）
-            //- -1, 1 : 视景体的底部和顶部边界
-            //- 0.1f, 100.0f : 视景体的近平面和远平面距离
-            //这个设置创建了一个正交投影矩阵，将 3D 场景映射到 2D 屏幕上。
-            //### 特点：
-            //- 不会产生透视效果，远处的物体不会变小
-            //- 平行线在投影后仍然保持平行
-            //- 物体的大小不会随着距离变化而变化
-            //- 适合绘制2D界面、工程图纸、等距视图等
-
-            Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
-
-            // 记录当前使用的视口范围，用于调试
-            Log.d("HeatMapRenderer", "视口范围: left=" + left + ", right=" + right +
-                    ", bottom=" + bottom + ", top=" + top +
-                    ", scaleFactor=" + scaleFactor +
-                    ", offsetX=" + offsetX + ", offsetY=" + offsetY);
-        }
+        // 使用正交投影，直接使用scaleFactor缩放视口
+        // 注意：较大的scaleFactor会使图像变小，较小的scaleFactor会使图像变大
+        // 使用正交投影，应用缩放因子和偏移量
+        float left = -ratio / scaleFactor + offsetX;
+        float right = ratio / scaleFactor + offsetX;
+        float bottom = -1.0f / scaleFactor + offsetY;
+        float top = 1.0f / scaleFactor + offsetY;
 
 
-        // 获取人体边界和跨度
-        float[] boundaries = bodyModel.getBoundaries();
-        float[] span = bodyModel.getSpan();
+        //Matrix.orthoM (正交投影)
+        //- projectionMatrix : 存储结果矩阵的数组
+        //- 0 : 结果矩阵在数组中的起始偏移量
+        //- -ratio, ratio : 视景体的左右边界（根据屏幕宽高比调整）
+        //- -1, 1 : 视景体的底部和顶部边界
+        //- 0.1f, 100.0f : 视景体的近平面和远平面距离
+        //这个设置创建了一个正交投影矩阵，将 3D 场景映射到 2D 屏幕上。
+        //### 特点：
+        //- 不会产生透视效果，远处的物体不会变小
+        //- 平行线在投影后仍然保持平行
+        //- 物体的大小不会随着距离变化而变化
+        //- 适合绘制2D界面、工程图纸、等距视图等
 
-        float left = 0f;
-        float right = 0f;
-        float bottom = 0f;
-        float top = 0f;
-        float scaleFactor = 1f; // 固定缩放因子为0.3
-        // 计算视口比例
-//        float ratio = (float) width / height;
-        // 方法1：使用归一化坐标系（类似原始设置）
-        if (!useOld && useNormalizedCoordinates) {
-            // 计算合适的缩放因子，使人体完全显示在屏幕上
-            float xScale = span[0] / width;
-            float yScale = span[1] / height;
-            float scale = Math.max(xScale, yScale) * 1.1f; // 增加10%的边距
-
-            // 计算中心点偏移，使人体居中显示
-            float centerX = span[0] / 2.0f;
-            float centerY = span[1] / 2.0f;
-
-            // 使用正交投影，确保人体比例正确，并居中显示
-            left = -ratio * scale;
-            right = ratio * scale;
-            bottom = -scale;
-            top = scale;
-
-            Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
-
-            // 更新模型视图矩阵，应用偏移
-            Matrix.setIdentityM(projectionMatrix, 0);
-            Matrix.translateM(projectionMatrix, 0, -centerX / (span[0] / 2) * ratio, -centerY / (span[1] / 2), -3.0f);
-        }
-        // 方法2：使用像素坐标系（新设置的改进版）
-        else if(!useOld && !useNormalizedCoordinates){
-            // 计算合适的缩放因子
-            float xScale = span[0] / width;
-            float yScale = span[1] / height;
-            float scale = Math.max(xScale, yScale) * 1.1f; // 增加10%的边距
-
-            // 计算视口范围，使人体居中显示
-            float viewWidth = span[0] / scale;
-            float viewHeight = span[1] / scale;
-            left = -viewWidth * 0.05f; // 左侧添加5%边距
-            right = viewWidth * 1.05f; // 右侧添加5%边距
-            bottom = -viewHeight * 0.05f; // 底部添加5%边距
-            top = viewHeight * 1.05f; // 顶部添加5%边距
-
-            Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
-
-            // 更新模型视图矩阵
-            Matrix.setIdentityM(projectionMatrix, 0);
-            Matrix.translateM(projectionMatrix, 0, 0, 0, -3.0f);
-        }
+        Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
 
         // 记录当前使用的视口范围，用于调试
-        Log.d(TAG, "视口范围: left=" + left + ", right=" + right +
+        Log.d("HeatMapRenderer", "视口范围: left=" + left + ", right=" + right +
                 ", bottom=" + bottom + ", top=" + top +
                 ", scaleFactor=" + scaleFactor +
-                ", offsetX=" + offsetX + ", offsetY=" + offsetY +
-                ", 坐标系类型=" + (useNormalizedCoordinates ? "归一化" : "像素"));
-
-
+                ", offsetX=" + offsetX + ", offsetY=" + offsetY);
 
         // 设置视图矩阵，将相机放在z轴上
         Matrix.setLookAtM(viewMatrix, 0,

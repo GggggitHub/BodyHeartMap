@@ -8,7 +8,7 @@ import android.util.Log;
 
 public class HeatMapView extends GLSurfaceView {
     private HeatMapRenderer renderer;
-    private float scaleFactor = 0.3f; // 设置固定缩放因子为0.3
+    private float scaleFactor = 1f; // 设置固定缩放因子为0.3
 
     public HeatMapView(Context context) {
         super(context);
