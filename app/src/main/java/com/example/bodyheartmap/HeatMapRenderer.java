@@ -169,7 +169,28 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         //- 物体的大小不会随着距离变化而变化
         //- 适合绘制2D界面、工程图纸、等距视图等
 
+//        float[] span = bodyModel.getSpan();
+//        float spanX = span[0];
+//        float spanY = span[1];
+//        float ratioX = spanX / spanY;
+//        float realDisX = ratio * 2.0f;//通过 Y -1,1计算得来。
+//        if (ratio > ratioX) {//屏幕宽
+//            float needDisX = ratioX * 2.0f;
+//            float dis = (realDisX - needDisX) / 2.0f;
+//            left = -realDisX/2.0f - dis;
+//            right = realDisX/2.0f + dis;
+//        }else {
+//            left = -realDisX/2.0f;
+//            right = realDisX/2.0f;
+//        }
+
+
+        //-1,1
+        //-0.8,0.8 --> -1,0.6
+
         Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
+        float v = right - left;
+//        Matrix.orthoM(projectionMatrix, 0, -1, -1+v, bottom, top, 0.1f, 100.0f);
 
         // 记录当前使用的视口范围，用于调试
         Log.d("HeatMapRenderer", "视口范围: left=" + left + ", right=" + right +

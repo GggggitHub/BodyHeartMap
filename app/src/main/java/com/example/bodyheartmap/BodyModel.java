@@ -180,7 +180,7 @@ public class BodyModel {
 //                    float normalizedX = (x / xSpan) - 1.0f;
 //                    float normalizedY = 1.0f - (y / ySpan); //变形了。。不可以。
 
-//                    float max = Math.max(xSpan, ySpan);
+//                    float max = Math.max(xSpan, ySpan);//0,1
                     float max = Math.max(xSpan, ySpan)/2;// 以模型高度一半作为标准化尺度，底部对齐到屏幕-1位置
                     float normalizedX = (x / max) - 1.0f;
                     float normalizedY = 1.0f - (y / max); //TODO Y轴方向通常需要翻转
