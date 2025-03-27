@@ -30,7 +30,7 @@
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:layout_height="match_parent"
-            android:visibility="visible"
+            android:visibility="gone"
             android:background="@android:color/transparent"
             />
         <com.example.bodyheartmap.HeatMapView
@@ -42,6 +42,11 @@
             android:visibility="visible"
             android:background="@android:color/transparent"
            />
+        <!-- 坐标系视图（叠加在热力图上） -->
+        <com.example.bodyheartmap.HeatMapCoordinateView
+            android:id="@+id/coordinateView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
     </FrameLayout>
 
 

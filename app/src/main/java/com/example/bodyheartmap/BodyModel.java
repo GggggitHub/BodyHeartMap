@@ -18,6 +18,21 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * 人体模型类
+ * 加载人体各部位的坐标数据，并绘制人体模型
+ *
+ JSON文件中的坐标范围 ：
+
+ - 查看JSON文件中的坐标，如头部.json中的坐标范围约为(400-600, 180-450)
+ - 左腿.json中的坐标范围约为(290-490, 1270-2250)
+ - 这表明整个人体图像的坐标范围大约是(0-1000, 0-2500)
+ 归一化处理：
+ - 假设您希望将这些坐标归一化到OpenGL的坐标系中，即(-1, -1)到(1, 1)
+ - 归一化的公式为： normalizedX = (x / 500.0f) - 1.0f; normalizedY = 1.0f - (y / 500.0f);
+
+ 这里将Y轴进行了翻转，但基准值500可能与实际图像尺寸不匹配
+ */
 public class BodyModel {
     private static final String TAG = "BodyModel";
     
@@ -96,7 +111,7 @@ public class BodyModel {
                     // 坐标归一化处理（可选，取决于您的坐标系统）
                     // 假设原始坐标范围是0-1000，转换为-1到1的OpenGL坐标系
                     float normalizedX = (x / 500.0f) - 1.0f;
-                    float normalizedY = 1.0f - (y / 500.0f); // Y轴方向通常需要翻转
+                    float normalizedY = 1.0f - (y / 500.0f); //TODO Y轴方向通常需要翻转
                     
                     coordinates.add(new float[]{normalizedX, normalizedY, 0.0f});
                 }

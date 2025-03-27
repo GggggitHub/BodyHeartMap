@@ -30,16 +30,7 @@ public class MainActivity extends AppCompatActivity {
 
     // 身体部位索引
     private static final int HEAD = 0;
-    private static final int TORSO = 1;
-    private static final int LEFT_ARM = 2;
-    private static final int RIGHT_ARM = 3;
-    private static final int LEFT_LEG = 4;
-    private static final int RIGHT_LEG = 5;
 
-    //各部位的名称
-    public static final String[] bodyPartNames = {
-            "头部", "躯干", "左臂", "右臂", "左腿", "右腿"
-    };
 
     // 当前选中的身体部位
     private volatile int selectedBodyPart = HEAD;
@@ -50,12 +41,19 @@ public class MainActivity extends AppCompatActivity {
     private float currentAlpha = 1.0f;
     private float currentScale = 0.8f; // 默认缩放因子
 
+    private HeatMapCoordinateView coordinateView;
     private OpenGlxyz openGlxyz;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 获取视图引用
+        coordinateView = findViewById(R.id.coordinateView);
+        // 设置坐标系参数
+        coordinateView.setCoordinateTextSize(30f); // 设置更大的文字以便清晰查看
+        coordinateView.setGridSpacing(200);        // 设置网格间距为200像素
 
         // 初始化OpenGlxyz视图
         openGlxyz = findViewById(R.id.xyz);
