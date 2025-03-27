@@ -122,6 +122,8 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
 
     // 修改投影矩阵计算方法
     private void updateProjectionMatrix(int width, int height) {
+        Log.d(TAG, "updateProjectionMatrix() called with: width = [" + width + "], height = [" + height + "]");
+
         float ratio = (float) width / height;
 
         // 重置投影矩阵
@@ -131,11 +133,28 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         // 使用正交投影，直接使用scaleFactor缩放视口
         // 注意：较大的scaleFactor会使图像变小，较小的scaleFactor会使图像变大
         // 使用正交投影，应用缩放因子和偏移量
-        float left = -ratio / scaleFactor + offsetX;
-        float right = ratio / scaleFactor + offsetX;
-        float bottom = -1.0f / scaleFactor + offsetY;
-        float top = 1.0f / scaleFactor + offsetY;
+        float left = -ratio  ;
+        float right = ratio  ;
+        float bottom = -1.0f  ;
+        float top = 1.0f  ;
 
+        left = -ratio / scaleFactor + offsetX;
+        right = ratio / scaleFactor + offsetX;
+        bottom = -1.0f / scaleFactor + offsetY;
+        top = 1.0f / scaleFactor + offsetY;
+
+
+
+        // 获取人体模型边界信息
+        float[] boundaries = bodyModel.getBoundaries();
+        float minX = boundaries[0];
+        float maxX = boundaries[1];
+        float minY = boundaries[2];
+        float maxY = boundaries[3];
+
+        // 模型中心点（务必确保此处计算正确）
+        float centerX = (minX + maxX) / 2f; // 必须为 504
+        float centerY = (minY + maxY) / 2f; // 必须为 1253.5
 
         //Matrix.orthoM (正交投影)
         //- projectionMatrix : 存储结果矩阵的数组

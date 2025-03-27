@@ -180,11 +180,14 @@ public class BodyModel {
 //                    float normalizedX = (x / xSpan) - 1.0f;
 //                    float normalizedY = 1.0f - (y / ySpan); //变形了。。不可以。
 
-                    float max = Math.max(xSpan, ySpan);
+//                    float max = Math.max(xSpan, ySpan);
+                    float max = Math.max(xSpan, ySpan)/2;// 以模型高度一半作为标准化尺度，底部对齐到屏幕-1位置
                     float normalizedX = (x / max) - 1.0f;
                     float normalizedY = 1.0f - (y / max); //TODO Y轴方向通常需要翻转
 
                     coordinates.add(new float[]{normalizedX, normalizedY, 0.0f});
+
+
                 }
             }
         } catch (JSONException e) {
@@ -370,6 +373,8 @@ public class BodyModel {
 
     // 获取边界信息的方法
     public float[] getBoundaries() {
+        Log.d(TAG, "人体边界: minX=" + minX + ", maxX=" + maxX +
+                ", minY=" + minY + ", maxY=" + maxY);
         return new float[]{minX, maxX, minY, maxY};
     }
 

@@ -35,10 +35,10 @@
         <com.example.bodyheartmap.HeatMapView
             android:id="@+id/heat_map_view"
             android:layout_gravity="right|top"
-            android:layout_width="300dp"
+            android:layout_width="500dp"
+            android:layout_height="500dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_height="300dp"
             android:visibility="visible"
             android:background="@android:color/white"
            />
