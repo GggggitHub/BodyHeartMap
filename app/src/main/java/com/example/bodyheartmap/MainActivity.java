@@ -50,10 +50,19 @@ public class MainActivity extends AppCompatActivity {
     private float currentAlpha = 1.0f;
     private float currentScale = 0.8f; // 默认缩放因子
 
+    private OpenGlxyz openGlxyz;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        // 初始化OpenGlxyz视图
+        openGlxyz = findViewById(R.id.xyz);
+        if (openGlxyz != null) {
+            openGlxyz.setAxisScale(2.0f); // 设置坐标轴为原来的2倍大
+        }
+        Log.d(TAG, "OpenGlxyz视图初始化完成");
 
         heatMapView = findViewById(R.id.heat_map_view);
 
@@ -368,6 +377,10 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         super.onPause();
         heatMapView.onPause();
+        // 暂停OpenGlxyz
+        if (openGlxyz != null) {
+            openGlxyz.onPause();
+        }
         stopTemperatureSimulation();
     }
 

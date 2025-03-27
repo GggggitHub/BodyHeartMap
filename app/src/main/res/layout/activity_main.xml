@@ -24,13 +24,21 @@
             android:src="@drawable/body_origin_img"
             android:layout_gravity="center"
             />
+        <com.example.bodyheartmap.OpenGlxyz
+            android:id="@+id/xyz"
+            android:layout_width="match_parent"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:layout_height="match_parent"
+            android:visibility="visible"
+            android:background="@android:color/transparent"
+            />
         <com.example.bodyheartmap.HeatMapView
             android:id="@+id/heat_map_view"
             android:layout_width="match_parent"
-            android:layout_marginLeft="50dp"
-            android:layout_marginRight="50dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_height="match_parent"
-            android:alpha="1"
             android:visibility="visible"
             android:background="@android:color/transparent"
            />

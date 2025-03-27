@@ -27,7 +27,6 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
     private int program;
     private int positionHandle;
     private int texCoordHandle;
-    private int temperatureHandle;
     private int colorMapHandle;
     private int mvpMatrixHandle;
     
@@ -39,8 +38,6 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
 
-    // 在类成员变量中添加
-    private boolean needsRedraw;
     
     public HeatMapRenderer(Context context) {
         this.context = context;
@@ -133,6 +130,18 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         float bottom = -1.0f / scaleFactor + offsetY;
         float top = 1.0f / scaleFactor + offsetY;
 
+        //Matrix.orthoM (正交投影)
+        //- projectionMatrix : 存储结果矩阵的数组
+        //- 0 : 结果矩阵在数组中的起始偏移量
+        //- -ratio, ratio : 视景体的左右边界（根据屏幕宽高比调整）
+        //- -1, 1 : 视景体的底部和顶部边界
+        //- 0.1f, 100.0f : 视景体的近平面和远平面距离
+        //这个设置创建了一个正交投影矩阵，将 3D 场景映射到 2D 屏幕上。
+        //### 特点：
+        //- 不会产生透视效果，远处的物体不会变小
+        //- 平行线在投影后仍然保持平行
+        //- 物体的大小不会随着距离变化而变化
+        //- 适合绘制2D界面、工程图纸、等距视图等
         Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
 
         // 记录当前使用的视口范围，用于调试
@@ -458,12 +467,5 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         GLES20.glDisableVertexAttribArray(positionHandle);
         GLES20.glDisableVertexAttribArray(texCoordHandle);
     }
-    
-    // 添加drawBodyPart方法，确保使用正确的绘制模式
-    private void drawBodyPart(int[] indices) {
-        if (indices != null && indices.length >= 2) {
-            // 使用TRIANGLE_FAN模式绘制身体部位
-            GLES20.glDrawArrays(GLES20.GL_TRIANGLE_FAN, indices[0], indices[1]);
-        }
-    }
+
 }
