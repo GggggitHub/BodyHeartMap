@@ -41,7 +41,8 @@ public class BodyModel {
     
     // 身体各部位的顶点索引范围
     private Map<String, int[]> bodyPartIndices;
-    
+
+
     // 身体部位名称
 //    private static final String[] BODY_PARTS = {
 //        "head", "neck", "chest", "abdomen", "leftShoulder", "leftArm",
@@ -58,7 +59,25 @@ public class BodyModel {
 
     // 总顶点数 - 将在加载坐标后确定
     private int totalVertices = 0;
-    
+
+    // 添加边界坐标变量
+    private float minX = Float.MAX_VALUE;
+    private float maxX = Float.MIN_VALUE;
+    private float minY = Float.MAX_VALUE;
+    private float maxY = Float.MIN_VALUE;
+    private float[] minXPoint = new float[2];
+    private float[] maxXPoint = new float[2];
+    private float[] minYPoint = new float[2];
+    private float[] maxYPoint = new float[2];
+
+    // 添加坐标跨度变量
+    private float xSpan;
+    private float ySpan;
+
+    // 添加坐标偏移量
+    private float xOffset;
+    private float yOffset;
+
     // 构造函数
     public BodyModel(Context context) {
         loadBodyPartsFromAssets(context);
@@ -67,7 +86,33 @@ public class BodyModel {
     // 从assets加载身体部位坐标
     private void loadBodyPartsFromAssets(Context context) {
         Map<String, List<float[]>> bodyPartsCoordinates = new HashMap<>();
-        
+
+        try {
+            // 首先加载完整的人体轮廓以计算边界
+            String jsonStr = loadJSONFromAsset(context, "body_red_2_contour_copy.json");
+            JSONArray jsonArray = new JSONArray(jsonStr);
+
+            // 计算边界
+            calculateBoundaries(jsonArray);
+
+            // 计算坐标跨度
+            xSpan = maxX - minX;
+            ySpan = maxY - minY;
+
+            // 计算偏移量，使左上角为(0,0)
+            xOffset = minX;
+            yOffset = minY;
+
+            Log.d(TAG, "边界坐标: minX=" + minX + ", maxX=" + maxX + ", minY=" + minY + ", maxY=" + maxY);
+            Log.d(TAG, "坐标跨度: xSpan=" + xSpan + ", ySpan=" + ySpan);
+            Log.d(TAG, "坐标偏移量: xOffset=" + xOffset + ", yOffset=" + yOffset);
+
+        } catch (Exception e) {
+            Log.e(TAG, "解析JSON时出错", e);
+        }
+
+
+
         // 初始化身体部位索引映射
         bodyPartIndices = new HashMap<>();
         
@@ -85,7 +130,23 @@ public class BodyModel {
         // 创建顶点和纹理坐标缓冲区
         setupBuffers(bodyPartsCoordinates);
     }
-    
+
+    private String loadJSONFromAsset(Context context, String s) {
+        try {
+            InputStream is = context.getAssets().open(s);
+            BufferedReader reader = new BufferedReader(new InputStreamReader(is));
+            StringBuilder jsonString = new StringBuilder();
+            String line;
+            while ((line = reader.readLine()) != null) {
+                jsonString.append(line);
+            }
+            return jsonString.toString();
+        } catch (IOException e) {
+           e.printStackTrace();
+        }
+        return null;
+    }
+
     // 从资源文件加载坐标
     private List<float[]> loadCoordinatesFromAsset(Context context, String filename) throws IOException {
         List<float[]> coordinates = new ArrayList<>();
@@ -105,14 +166,24 @@ public class BodyModel {
             for (int i = 0; i < jsonArray.length(); i++) {
                 JSONArray pointArray = jsonArray.getJSONArray(i);
                 if (pointArray.length() >= 2) {
-                    float x = (float) pointArray.getDouble(0);
-                    float y = (float) pointArray.getDouble(1);
-                    
+                    float x = (float) pointArray.getDouble(0) - xOffset;
+                    float y = (float) pointArray.getDouble(1) - yOffset;
+
+//                    coordinates.add(processVertexCoordinates(x,y,HeatMapRenderer.useNormalizedCoordinates));
+
                     // 坐标归一化处理（可选，取决于您的坐标系统）
                     // 假设原始坐标范围是0-1000，转换为-1到1的OpenGL坐标系
-                    float normalizedX = (x / 500.0f) - 1.0f;
-                    float normalizedY = 1.0f - (y / 500.0f); //TODO Y轴方向通常需要翻转
-                    
+//                    float normalizedX = (x / 500.0f) - 1.0f;
+//                    float normalizedY = 1.0f - (y / 500.0f); //500不对。不准确。
+
+
+//                    float normalizedX = (x / xSpan) - 1.0f;
+//                    float normalizedY = 1.0f - (y / ySpan); //变形了。。不可以。
+
+                    float max = Math.max(xSpan, ySpan);
+                    float normalizedX = (x / max) - 1.0f;
+                    float normalizedY = 1.0f - (y / max); //TODO Y轴方向通常需要翻转
+
                     coordinates.add(new float[]{normalizedX, normalizedY, 0.0f});
                 }
             }
@@ -124,6 +195,19 @@ public class BodyModel {
         }
         
         return coordinates;
+    }
+
+    //不需要了。 在处理顶点坐标时，根据坐标系类型进行不同的处理
+    private float[] processVertexCoordinates(float x, float y, boolean useNormalizedCoordinates) {
+        if (useNormalizedCoordinates) {
+            // 归一化处理，将坐标映射到[-1, 1]范围
+            float normalizedX = (x / xSpan) * 2.0f - 1.0f;
+            float normalizedY = (y / ySpan) * 2.0f - 1.0f;
+            return new float[]{normalizedX, normalizedY, 0.0f};
+        } else {
+            // 像素坐标处理，直接使用偏移后的坐标
+            return new float[]{x - xOffset, y - yOffset, 0.0f};
+        }
     }
     
     // 设置顶点和纹理坐标缓冲区
@@ -239,5 +323,63 @@ public class BodyModel {
     
     public int getTotalVertices() {
         return totalVertices;
+    }
+
+    // 计算边界坐标
+    private void calculateBoundaries(JSONArray jsonArray) throws JSONException {
+        for (int i = 0; i < jsonArray.length(); i++) {
+            JSONArray point = jsonArray.getJSONArray(i);
+            float x = 0;
+            float y = 0;
+            if (point.length() >= 2) {
+              x = (float) point.getDouble(0);
+              y = (float) point.getDouble(1);
+            }else {
+                continue;
+            }
+
+            // 更新最小X坐标
+            if (x < minX) {
+                minX = x;
+                minXPoint[0] = x;
+                minXPoint[1] = y;
+            }
+
+            // 更新最大X坐标
+            if (x > maxX) {
+                maxX = x;
+                maxXPoint[0] = x;
+                maxXPoint[1] = y;
+            }
+
+            // 更新最小Y坐标
+            if (y < minY) {
+                minY = y;
+                minYPoint[0] = x;
+                minYPoint[1] = y;
+            }
+
+            // 更新最大Y坐标
+            if (y > maxY) {
+                maxY = y;
+                maxYPoint[0] = x;
+                maxYPoint[1] = y;
+            }
+        }
+    }
+
+    // 获取边界信息的方法
+    public float[] getBoundaries() {
+        return new float[]{minX, maxX, minY, maxY};
+    }
+
+    // 获取坐标跨度
+    public float[] getSpan() {
+        return new float[]{xSpan, ySpan};
+    }
+
+    // 获取坐标偏移量
+    public float[] getOffset() {
+        return new float[]{xOffset, yOffset};
     }
 }

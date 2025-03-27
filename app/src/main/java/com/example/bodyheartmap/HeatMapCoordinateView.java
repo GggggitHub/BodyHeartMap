@@ -114,6 +114,19 @@ public class HeatMapCoordinateView extends View {
         Log.d(TAG, "视图尺寸变化: 宽度=" + w + ", 高度=" + h);
     }
 
+
+    // 添加图像坐标系参数
+    private int imageWidth = 1000;  // 估计的图像宽度
+    private int imageHeight = 2500; // 估计的图像高度
+    /**
+     * 设置图像尺寸，用于坐标转换
+     */
+    public void setImageDimensions(int width, int height) {
+        this.imageWidth = width;
+        this.imageHeight = height;
+        invalidate();
+    }
+    
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
@@ -134,14 +147,20 @@ public class HeatMapCoordinateView extends View {
      * 绘制网格
      */
     private void drawGrid(Canvas canvas) {
+        // 计算视图中每个网格对应的像素距离
+        float xStep = (float) viewWidth / (imageWidth / gridSpacing);
+        float yStep = (float) viewHeight / (imageHeight / gridSpacing);
+        
         // 绘制垂直网格线
-        for (int x = gridSpacing; x < viewWidth; x += gridSpacing) {
-            canvas.drawLine(x, 0, x, viewHeight, gridPaint);
+        for (int x = 0; x <= imageWidth; x += gridSpacing) {
+            float xPos = x * viewWidth / imageWidth;
+            canvas.drawLine(xPos, 0, xPos, viewHeight, gridPaint);
         }
         
         // 绘制水平网格线
-        for (int y = gridSpacing; y < viewHeight; y += gridSpacing) {
-            canvas.drawLine(0, y, viewWidth, y, gridPaint);
+        for (int y = 0; y <= imageHeight; y += gridSpacing) {
+            float yPos = y * viewHeight / imageHeight;
+            canvas.drawLine(0, yPos, viewWidth, yPos, gridPaint);
         }
     }
     
@@ -149,47 +168,66 @@ public class HeatMapCoordinateView extends View {
      * 绘制坐标轴
      */
     private void drawAxis(Canvas canvas) {
-        // 绘制X轴
+        // 绘制X轴 (底部)
         canvas.drawLine(0, viewHeight - 1, viewWidth, viewHeight - 1, axisPaint);
         
-        // 绘制Y轴
+        // 绘制Y轴 (左侧)
         canvas.drawLine(1, 0, 1, viewHeight, axisPaint);
         
         // 绘制坐标轴标签
         canvas.drawText("X", viewWidth - 30, viewHeight - 10, textPaint);
         canvas.drawText("Y", 10, 30, textPaint);
         
-        // 绘制原点标签
-        canvas.drawText("O(0,0)", 10, viewHeight - 10, textPaint);
+        // 绘制原点标签 (左上角为原点)
+        canvas.drawText("O(0,0)", 10, 30, textPaint);
     }
     
     /**
      * 绘制刻度和标签
      */
     private void drawScalesAndLabels(Canvas canvas) {
-        // 绘制X轴刻度和标签
-        for (int x = gridSpacing; x < viewWidth; x += gridSpacing) {
+        // 绘制X轴刻度和标签 (每gridSpacing个像素一个刻度)
+        for (int x = gridSpacing; x <= imageWidth; x += gridSpacing) {
+            float xPos = x * viewWidth / imageWidth;
+            
             // 绘制刻度线
-            canvas.drawLine(x, viewHeight - 5, x, viewHeight + 5, axisPaint);
+            canvas.drawLine(xPos, viewHeight - 5, xPos, viewHeight, axisPaint);
             
             // 绘制刻度值
             String xLabel = String.valueOf(x);
             float textWidth = textPaint.measureText(xLabel);
-            canvas.drawText(xLabel, x - textWidth / 2, viewHeight - labelOffset - textSize, textPaint);
+            canvas.drawText(xLabel, xPos - textWidth / 2, viewHeight - labelOffset, textPaint);
         }
         
-        // 绘制Y轴刻度和标签
-        for (int y = gridSpacing; y < viewHeight; y += gridSpacing) {
-            // 计算实际Y坐标（从底部向上）
-            int actualY = viewHeight - y;
+        // 绘制Y轴刻度和标签 (每gridSpacing个像素一个刻度)
+        for (int y = gridSpacing; y <= imageHeight; y += gridSpacing) {
+            float yPos = y * viewHeight / imageHeight;
             
             // 绘制刻度线
-            canvas.drawLine(-5, actualY, 5, actualY, axisPaint);
+            canvas.drawLine(0, yPos, 5, yPos, axisPaint);
             
             // 绘制刻度值
             String yLabel = String.valueOf(y);
-            canvas.drawText(yLabel, labelOffset + 5, actualY + textSize / 3, textPaint);
+            canvas.drawText(yLabel, labelOffset + 5, yPos + textSize / 3, textPaint);
         }
+    }
+    
+    /**
+     * 将图像坐标转换为视图坐标
+     */
+    public float[] imageToViewCoordinates(float imageX, float imageY) {
+        float viewX = imageX * viewWidth / imageWidth;
+        float viewY = imageY * viewHeight / imageHeight;
+        return new float[]{viewX, viewY};
+    }
+    
+    /**
+     * 将视图坐标转换为图像坐标
+     */
+    public float[] viewToImageCoordinates(float viewX, float viewY) {
+        float imageX = viewX * imageWidth / viewWidth;
+        float imageY = viewY * imageHeight / viewHeight;
+        return new float[]{imageX, imageY};
     }
     
     /**

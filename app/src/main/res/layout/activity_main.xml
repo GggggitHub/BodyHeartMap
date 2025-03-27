@@ -14,8 +14,7 @@
         app:layout_constraintBottom_toTopOf="@+id/controls_panel"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/white">
+        app:layout_constraintTop_toTopOf="parent">
         <ImageView
             android:id="@+id/image_view"
             android:visibility="visible"
@@ -35,16 +34,19 @@
             />
         <com.example.bodyheartmap.HeatMapView
             android:id="@+id/heat_map_view"
-            android:layout_width="match_parent"
+            android:layout_gravity="right|top"
+            android:layout_width="300dp"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
-            android:layout_height="match_parent"
+            android:layout_height="300dp"
             android:visibility="visible"
-            android:background="@android:color/transparent"
+            android:background="@android:color/white"
            />
         <!-- 坐标系视图（叠加在热力图上） -->
         <com.example.bodyheartmap.HeatMapCoordinateView
             android:id="@+id/coordinateView"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
     </FrameLayout>
