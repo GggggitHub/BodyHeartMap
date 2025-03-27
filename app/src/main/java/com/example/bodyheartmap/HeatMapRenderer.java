@@ -35,6 +35,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
     private int colorMapTexture;
     
     // 变换矩阵
+    private final float[] modelMatrix = new float[16];
     private final float[] mvpMatrix = new float[16];
     private final float[] projectionMatrix = new float[16];
     private final float[] viewMatrix = new float[16];
@@ -118,9 +119,9 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
 
     // 在类的成员变量部分添加
     public static boolean useNormalizedCoordinates = true;
-    public static boolean useOld = true;
 
-    // 修改投影矩阵计算方法
+
+// 修改投影矩阵计算方法
     private void updateProjectionMatrix(int width, int height) {
         Log.d(TAG, "updateProjectionMatrix() called with: width = [" + width + "], height = [" + height + "]");
 
@@ -133,10 +134,26 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         // 使用正交投影，直接使用scaleFactor缩放视口
         // 注意：较大的scaleFactor会使图像变小，较小的scaleFactor会使图像变大
         // 使用正交投影，应用缩放因子和偏移量
-        float left = -ratio  ;
-        float right = ratio  ;
-        float bottom = -1.0f  ;
-        float top = 1.0f  ;
+        float left = -ratio;
+        float right = ratio;
+        float bottom = -1.0f;
+        float top = 1.0f;
+
+        float[] span = bodyModel.getSpan();
+        float spanX = span[0];
+        float spanY = span[1];
+        float ratioX = spanX / spanY;
+        float realDisX = ratio * 2.0f;//通过 Y -1,1计算得来。
+        if (ratio > ratioX) {//屏幕宽
+           offsetX = - (ratio - ratioX);
+//            float needDisX = ratioX * 2.0f;
+//            float dis = (realDisX - needDisX) / 2.0f;
+//            left = -realDisX/2.0f - dis;
+//            right = realDisX/2.0f + dis;
+        }else {
+            left = -realDisX/2.0f;
+            right = realDisX/2.0f;
+        }
 
         left = -ratio / scaleFactor + offsetX;
         right = ratio / scaleFactor + offsetX;
@@ -169,20 +186,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         //- 物体的大小不会随着距离变化而变化
         //- 适合绘制2D界面、工程图纸、等距视图等
 
-//        float[] span = bodyModel.getSpan();
-//        float spanX = span[0];
-//        float spanY = span[1];
-//        float ratioX = spanX / spanY;
-//        float realDisX = ratio * 2.0f;//通过 Y -1,1计算得来。
-//        if (ratio > ratioX) {//屏幕宽
-//            float needDisX = ratioX * 2.0f;
-//            float dis = (realDisX - needDisX) / 2.0f;
-//            left = -realDisX/2.0f - dis;
-//            right = realDisX/2.0f + dis;
-//        }else {
-//            left = -realDisX/2.0f;
-//            right = realDisX/2.0f;
-//        }
+
 
 
         //-1,1
