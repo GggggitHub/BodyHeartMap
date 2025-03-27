@@ -126,7 +126,9 @@ public class BodyModel {
                 Log.e(TAG, "无法加载身体部位坐标: " + part, e);
             }
         }
-        
+
+        Log.i(TAG, "loadCoordinatesFromAsset: normalizedXMin=" + normalizedXMin + ", normalizedXMax=" + normalizedXMax + ", normalizedYMin=" + normalizedYMin + ", normalizedYMax=" + normalizedYMax);
+
         // 创建顶点和纹理坐标缓冲区
         setupBuffers(bodyPartsCoordinates);
     }
@@ -146,6 +148,12 @@ public class BodyModel {
         }
         return null;
     }
+
+
+    float normalizedXMax = -20.0f;
+    float normalizedYMax = -20.0f;
+    float normalizedXMin = 2.0f;
+    float normalizedYMin = 2.0f;
 
     // 从资源文件加载坐标
     private List<float[]> loadCoordinatesFromAsset(Context context, String filename) throws IOException {
@@ -167,6 +175,7 @@ public class BodyModel {
                 JSONArray pointArray = jsonArray.getJSONArray(i);
                 if (pointArray.length() >= 2) {
                     float x = (float) pointArray.getDouble(0) - xOffset;
+//                    float x = (float) pointArray.getDouble(0);
                     float y = (float) pointArray.getDouble(1) - yOffset;
 
 //                    coordinates.add(processVertexCoordinates(x,y,HeatMapRenderer.useNormalizedCoordinates));
@@ -182,12 +191,24 @@ public class BodyModel {
 
 //                    float max = Math.max(xSpan, ySpan);//0,1
                     float max = Math.max(xSpan, ySpan)/2;// 以模型高度一半作为标准化尺度，底部对齐到屏幕-1位置
+//                    float normalizedX = (x / max /2.0f) - 1.0f;
                     float normalizedX = (x / max) - 1.0f;
                     float normalizedY = 1.0f - (y / max); //TODO Y轴方向通常需要翻转
 
+                    // get normalizedXMax, normalizedYMax, normalizedXMin, normalizedYMin
+                    if (normalizedX > normalizedXMax) {
+                        normalizedXMax = normalizedX;
+                    }
+                    if (normalizedY > normalizedYMax) {
+                        normalizedYMax = normalizedY;
+                    }
+                    if (normalizedX < normalizedXMin) {
+                        normalizedXMin = normalizedX;
+                    }
+                    if (normalizedY < normalizedYMin) {
+                        normalizedYMin = normalizedY;
+                    }
                     coordinates.add(new float[]{normalizedX, normalizedY, 0.0f});
-
-
                 }
             }
         } catch (JSONException e) {

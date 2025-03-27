@@ -90,7 +90,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
     @Override
     public void onSurfaceChanged(GL10 gl, int width, int height) {
         GLES20.glViewport(0, 0, width, height);
-        updateProjectionMatrix(width, height);
+        updateProjectionMatrix(width, height,false);
     }
 
 
@@ -122,7 +122,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
 
 
 // 修改投影矩阵计算方法
-    private void updateProjectionMatrix(int width, int height) {
+    private void updateProjectionMatrix(int width, int height,boolean isonDrawFrame) {
         Log.d(TAG, "updateProjectionMatrix() called with: width = [" + width + "], height = [" + height + "]");
 
         float ratio = (float) width / height;
@@ -143,16 +143,21 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         float spanX = span[0];
         float spanY = span[1];
         float ratioX = spanX / spanY;
-        float realDisX = ratio * 2.0f;//通过 Y -1,1计算得来。
-        if (ratio > ratioX) {//屏幕宽
-           offsetX = - (ratio - ratioX);
-//            float needDisX = ratioX * 2.0f;
-//            float dis = (realDisX - needDisX) / 2.0f;
-//            left = -realDisX/2.0f - dis;
-//            right = realDisX/2.0f + dis;
-        }else {
-            left = -realDisX/2.0f;
-            right = realDisX/2.0f;
+
+        //横屏视窗范围
+        float xWindow = ratio * 2.0f;//从[-ratio ,ratio]
+        float bodyXwith = spanX/spanY * 2.0f;//从 [-1 ，-1 + bodyXwith]
+        Log.i(TAG, "视口范围: ratio=" + ratio + ",ratioX=" + ratioX + ",bodyXwith=" + bodyXwith);
+        //计算偏移量 x 轴移动到中央
+        if (!isonDrawFrame) {
+            if (ratio <= 1) {//屏幕宽
+                float v = 1.0f - ratio - bodyXwith / 2.0f + ratio;
+                offsetX = -v;
+            }
+            if (ratio > 1) {//屏幕窄
+                float v = ratio - 1.0f -ratio + bodyXwith / 2.0f;
+                offsetX = v;
+            }
         }
 
         left = -ratio / scaleFactor + offsetX;
@@ -160,18 +165,6 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         bottom = -1.0f / scaleFactor + offsetY;
         top = 1.0f / scaleFactor + offsetY;
 
-
-
-        // 获取人体模型边界信息
-        float[] boundaries = bodyModel.getBoundaries();
-        float minX = boundaries[0];
-        float maxX = boundaries[1];
-        float minY = boundaries[2];
-        float maxY = boundaries[3];
-
-        // 模型中心点（务必确保此处计算正确）
-        float centerX = (minX + maxX) / 2f; // 必须为 504
-        float centerY = (minY + maxY) / 2f; // 必须为 1253.5
 
         //Matrix.orthoM (正交投影)
         //- projectionMatrix : 存储结果矩阵的数组
@@ -187,13 +180,9 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         //- 适合绘制2D界面、工程图纸、等距视图等
 
 
-
-
         //-1,1
         //-0.8,0.8 --> -1,0.6
-
         Matrix.orthoM(projectionMatrix, 0, left, right, bottom, top, 0.1f, 100.0f);
-        float v = right - left;
 //        Matrix.orthoM(projectionMatrix, 0, -1, -1+v, bottom, top, 0.1f, 100.0f);
 
         // 记录当前使用的视口范围，用于调试
@@ -481,7 +470,7 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
         if (scaleChanged || positionChanged) {
             // 获取当前视口尺寸
             GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, viewport, 0);
-            updateProjectionMatrix(viewport[2], viewport[3]);
+            updateProjectionMatrix(viewport[2], viewport[3],true);//就是width,height 宽度高度 dp
             scaleChanged = false;
             positionChanged = false;
             // 打印日志确认缩放因子已应用

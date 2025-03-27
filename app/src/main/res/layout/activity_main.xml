@@ -34,13 +34,12 @@
             />
         <com.example.bodyheartmap.HeatMapView
             android:id="@+id/heat_map_view"
-
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
             android:visibility="visible"
-            android:background="@android:color/darker_gray"
+            android:background="@android:color/transparent"
            />
         <!-- 坐标系视图（叠加在热力图上） -->
         <com.example.bodyheartmap.HeatMapCoordinateView
