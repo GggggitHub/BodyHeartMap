@@ -1,6 +1,5 @@
-package com.example.bodyheartmap;
+package com.aj.bodyheartmap;
 
-import android.graphics.PixelFormat;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -13,7 +12,10 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import com.aj.bodyheartmap.R;
+import com.aj.bodyheartmap.view.BodyModel;
+import com.aj.bodyheartmap.view.HeatMapCoordinateView;
+import com.aj.bodyheartmap.view.HeatMapView;
+import com.aj.bodyheartmap.view.OpenGlxyz;
 
 import java.util.Random;
 
@@ -49,13 +51,13 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // 获取视图引用
+        //坐标系
         coordinateView = findViewById(R.id.coordinateView);
         // 设置坐标系参数
         coordinateView.setCoordinateTextSize(30f); // 设置更大的文字以便清晰查看
         coordinateView.setGridSpacing(200);        // 设置网格间距为200像素
 
-        // 初始化OpenGlxyz视图
+        //初始化OpenGlxyz视图
         openGlxyz = findViewById(R.id.xyz);
         if (openGlxyz != null) {
             openGlxyz.setAxisScale(2.0f); // 设置坐标轴为原来的2倍大
@@ -66,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         // 初始化温度数据（13个身体部位，每个部位4个点）
         // 初始化温度数据（每个部位只存储一个温度值）
+        //[35,42]
         temperatureData = new float[]{
                 37.5f, // 头部
                 36.6f, // 颈部
@@ -238,21 +241,9 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    // 更新身体部位定义，与assets文件夹中的文件名对应
-    private static final String[] BODY_PARTS = {
-//        "head", "neck", "chest", "abdomen", "left_shoulder", "left_arm",
-        "head", "neck", "chest", "left_shoulder", "left_arm",
-        "left_hand", "right_shoulder", "right_arm", "right_hand",
-        "left_thigh", "left_leg", "right_thigh", "right_leg"
-    };
 
     // 身体部位的中文名称
-    private static final String[] BODY_PART_NAMES = {
-//        "头部", "颈部", "胸部", "腹部", "左肩", "左臂",
-        "头部", "颈部", "上身",  "左肩膀", "左臂",
-        "左手", "右肩膀", "右臂", "右手",
-        "左腿", "左脚", "右腿", "右教"
-    };
+    private static final String[] BODY_PART_NAMES = BodyModel.BODY_PARTS;
 
     private void setupBodyPartButtons() {
         // 身体部位按钮ID数组 - 使用新添加的13个按钮
@@ -317,17 +308,18 @@ public class MainActivity extends AppCompatActivity {
     }
 
 
+    // 更新温度滑动条的值
     private void updateTempSliderForSelectedPart() {
         // 计算选中部位的平均温度
-        float avgTemp = temperatureData[selectedBodyPart];
+        float curTemp = temperatureData[selectedBodyPart];
 
         // 更新滑块和温度显示
         SeekBar seekBarTemp = findViewById(R.id.seek_bar_temp);
         TextView tvTempValue = findViewById(R.id.tv_temp_value);
 
-        int progress = (int) ((avgTemp - 35.0f) / 5.0f * 100);
+        int progress = (int) ((curTemp - 35.0f) / 7.0f * 100);
         seekBarTemp.setProgress(progress);
-        tvTempValue.setText(String.format("%.1f°C", avgTemp));
+        tvTempValue.setText(String.format("%.1f°C", curTemp));
     }
 
     private void startTemperatureSimulation() {
@@ -346,7 +338,7 @@ public class MainActivity extends AppCompatActivity {
                 // 更新热力图
                 heatMapView.updateTemperatureData(temperatureData,currentAlpha);
 
-                // 如果当前有选中的身体部位，更新滑块
+                // 如果当前有选中的身体部位，更新滑块 显示温度。
                 updateTempSliderForSelectedPart();
 
                 // 继续模拟

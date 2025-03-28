@@ -1,4 +1,4 @@
-package com.example.bodyheartmap;
+package com.aj.bodyheartmap.view;
 
 import android.content.Context;
 import android.util.Log;
@@ -50,7 +50,7 @@ public class BodyModel {
 //        "leftThigh", "leftLeg", "rightThigh", "rightLeg"
 //    };
     
-    private static final String[] BODY_PARTS = {
+    public static final String[] BODY_PARTS = {
 //        "头部", "颈部", "上身", "abdomen", "leftShoulder", "leftArm",
         "头部", "颈部", "上身",  "左肩膀", "左臂",
         "左手", "右肩膀", "右臂", "右手",

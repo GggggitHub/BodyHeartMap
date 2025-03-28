@@ -1,4 +1,4 @@
-package com.example.bodyheartmap;
+package com.aj.bodyheartmap.view;
 
 import android.content.Context;
 import android.graphics.PixelFormat;
@@ -19,7 +19,6 @@ import javax.microedition.khronos.opengles.GL10;
  * Created by 123 on 2023/12/12.
  *
  * 3D坐标系渲染器
- * 2D坐标系渲染器
  */
 public class OpenGlxyz extends GLSurfaceView {
     private static final String TAG = "OpenGlxyz";

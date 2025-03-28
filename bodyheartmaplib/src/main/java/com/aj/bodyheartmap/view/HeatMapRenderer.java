@@ -1,4 +1,4 @@
-package com.example.bodyheartmap;
+package com.aj.bodyheartmap.view;
 
 import android.content.Context;
 import android.opengl.GLES20;

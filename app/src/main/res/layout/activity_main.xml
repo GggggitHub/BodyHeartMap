@@ -23,7 +23,7 @@
             android:src="@drawable/body_origin_img"
             android:layout_gravity="center"
             />
-        <com.example.bodyheartmap.OpenGlxyz
+        <com.aj.bodyheartmap.view.OpenGlxyz
             android:id="@+id/xyz"
             android:layout_width="match_parent"
             android:layout_marginLeft="10dp"
@@ -32,7 +32,7 @@
             android:visibility="gone"
             android:background="@android:color/transparent"
             />
-        <com.example.bodyheartmap.HeatMapView
+        <com.aj.bodyheartmap.view.HeatMapView
             android:id="@+id/heat_map_view"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
@@ -42,7 +42,7 @@
             android:background="@android:color/transparent"
            />
         <!-- 坐标系视图（叠加在热力图上） -->
-        <com.example.bodyheartmap.HeatMapCoordinateView
+        <com.aj.bodyheartmap.view.HeatMapCoordinateView
             android:id="@+id/coordinateView"
             android:layout_marginLeft="10dp"
             android:layout_marginRight="10dp"
