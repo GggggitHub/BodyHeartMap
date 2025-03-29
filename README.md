@@ -44,7 +44,7 @@ dependencies {
 
 ### 本地AAR文件
 
-1. 下载最新的 [bodyheartmaplib-release.aar](https://github.com/yourusername/BodyHeartMap/releases)
+1. 下载最新的 [bodyheartmaplib-release.aar](https://github.com/GggggitHub/BodyHeartMap/releases)
 2. 将AAR文件复制到您项目的 `libs` 目录
 3. 在应用模块的 `build.gradle` 文件中添加：
 
