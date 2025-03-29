@@ -8,7 +8,7 @@
   <img src="screenshots/demo.png" width="300" alt="BodyHeartMap演示">
 </p>
 
-- 详细的介绍：[Your Blog](https://yourblog.com)
+- 详细的介绍：[人体热力图可视化库 Blog](https://juejin.cn/post/7486779111748337714)
 
 ## 📝 简介
 
@@ -122,16 +122,6 @@ coordinateView.setAxisScale(1.2f);
 | `setScaleFactor(float scale)` | 设置缩放因子 |
 | `setOffsetX(float offset)` | 设置X轴偏移 |
 | `setOffsetY(float offset)` | 设置Y轴偏移 |
-
-
-### BodyHeatMapManager
-
-| 方法 | 描述 |
-| --- | --- |
-| `getInstance(Context context)` | 获取管理器实例 |
-| `createHeatMapView()` | 创建热力图视图 |
-| `createCoordinateView()` | 创建3D坐标系视图 |
-| `getVersion()` | 获取库版本信息 |
 
 
 ## 🧪 技术细节
