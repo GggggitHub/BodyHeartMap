@@ -46,12 +46,7 @@ public class HeatMapView extends GLSurfaceView {
         // 设置保留EGL上下文
         setPreserveEGLContextOnPause(true);
     }
-    
-    // 更新温度数据
-    public void updateTemperatureData(float[] temperatures) {
-        renderer.updateTemperature(temperatures);
-        requestRender(); // 请求重新渲染
-    }
+
     // 更新温度数据
     public void updateTemperatureData(float[] temperatures, float alpha) {
         renderer.updateTemperature(temperatures,alpha);

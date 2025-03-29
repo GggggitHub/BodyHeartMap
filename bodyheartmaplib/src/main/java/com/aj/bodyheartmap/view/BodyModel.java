@@ -287,7 +287,7 @@ public class BodyModel {
     }
     
     // 更新纹理坐标 - 支持13个身体部位的温度和透明度
-    public void updateTextureCoordinates(float[] temperatures, float globalAlpha) {
+    public void updateTextureCoordinates(float[] temperatures, float alpha) {
         if (temperatures == null || temperatures.length < BODY_PARTS.length) {
             Log.e(TAG, "温度数据不足，需要至少 " + BODY_PARTS.length + " 个值");
             return;
@@ -312,7 +312,8 @@ public class BodyModel {
             for (int j = 0; j < vertexCount; j++) {
                 int index = startIndex + j;
                 texCoords[index * 2] = normalizedTemp;
-                texCoords[index * 2 + 1] = globalAlpha;
+                texCoords[index * 2 + 1] = alpha;
+//                texCoords[index * 2 + 1] = 1.0f;
             }
         }
         
@@ -320,8 +321,13 @@ public class BodyModel {
         texCoordBuffer.position(0);
         texCoordBuffer.put(texCoords);
         texCoordBuffer.position(0);
-        
-        Log.i(TAG, "纹理坐标已更新，全局透明度: " + globalAlpha);
+
+        // 打印每个位置的温度值
+        StringBuffer sb = new StringBuffer();
+        for (int i = 0; i < BODY_PARTS.length; i++) {
+            sb.append(BODY_PARTS[i] + ": " + temperatures[i] +", ");
+        }
+        Log.i(TAG, "纹理坐标已更新 "+sb.toString()+" alpha="+alpha);
     }
     
     // 将温度值归一化到0-1范围

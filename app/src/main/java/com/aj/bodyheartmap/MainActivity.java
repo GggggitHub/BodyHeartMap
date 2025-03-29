@@ -16,7 +16,7 @@ import com.aj.bodyheartmap.view.BodyModel;
 import com.aj.bodyheartmap.view.HeatMapCoordinateView;
 import com.aj.bodyheartmap.view.HeatMapView;
 import com.aj.bodyheartmap.view.OpenGlxyz;
-
+import com.aj.bodyheartmap.R;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -24,7 +24,6 @@ public class MainActivity extends AppCompatActivity {
 
     private HeatMapView heatMapView;
     private float[] temperatureData;
-    private float currentTemperature = 36.5f;
     private Handler handler;
     private Random random = new Random();
     private boolean isSimulating = false;
@@ -40,7 +39,7 @@ public class MainActivity extends AppCompatActivity {
     // 在MainActivity中添加透明度控制
     private SeekBar alphaSeekBar;
     private TextView alphaTextView;
-    private float currentAlpha = 1.0f;
+    private float currentAlpha = 0.7f;
     private float currentScale = 0.8f; // 默认缩放因子
 
     private HeatMapCoordinateView coordinateView;
@@ -70,9 +69,9 @@ public class MainActivity extends AppCompatActivity {
         // 初始化温度数据（每个部位只存储一个温度值）
         //[35,42]
         temperatureData = new float[]{
-                37.5f, // 头部
+                39.8f, // 头部
                 36.6f, // 颈部
-                38.7f, // 上身
+                39.7f, // 上身
                 36.8f, // 左肩膀
                 36.9f, // 左臂
                 35.0f, // 左手
@@ -86,7 +85,7 @@ public class MainActivity extends AppCompatActivity {
         };
 
         // 更新热力图
-        heatMapView.updateTemperatureData(temperatureData);
+        heatMapView.updateTemperatureData(temperatureData,currentAlpha);
 
         // 设置模拟温度变化
         handler = new Handler(Looper.getMainLooper());
@@ -108,6 +107,7 @@ public class MainActivity extends AppCompatActivity {
         alphaSeekBar = findViewById(R.id.alphaSeekBar);
         alphaTextView = findViewById(R.id.alphaTextView);
 
+        alphaSeekBar.setProgress((int) (currentAlpha * 100));
         alphaSeekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
@@ -117,8 +117,8 @@ public class MainActivity extends AppCompatActivity {
 
                 heatMapView.updateGlAlpha(currentAlpha);
 
-//                // 更新热力图透明度
-//                updateSelectedAreaTemperature(currentTemperature, currentAlpha);
+                // 更新热力图透明度
+                updateSelectedAreaTemperature(temperatureData[selectedBodyPart], currentAlpha);
             }
 
             @Override
@@ -131,6 +131,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
 
+
         // 设置温度调节滑块
         SeekBar seekBarTemp = findViewById(R.id.seek_bar_temp);
         TextView tvTempValue = findViewById(R.id.tv_temp_value);
@@ -138,7 +139,7 @@ public class MainActivity extends AppCompatActivity {
         seekBarTemp.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
             public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-                float temp = currentTemperature = 35.0f + (progress / 100.0f) * 7.0f; // 35-42度范围
+                float temp = 35.0f + (progress / 100.0f) * 7.0f; // 35-42度范围
                 tvTempValue.setText(String.format("%.1f°C", temp));
 
                 if (fromUser) {

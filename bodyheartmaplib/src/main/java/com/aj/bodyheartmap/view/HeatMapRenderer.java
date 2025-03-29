@@ -353,16 +353,6 @@ public class HeatMapRenderer implements GLSurfaceView.Renderer {
             // 更新BodyModel的纹理坐标
             if (bodyModel != null) {
                 bodyModel.updateTextureCoordinates(temperatures, alpha);
-                
-                // 打印日志确认温度和透明度更新
-                System.out.println("温度数据和透明度已更新: " + 
-                                  "头部=" + temperatures[0] + ", " + 
-                                  "躯干=" + temperatures[1] + ", " + 
-                                  "左臂=" + temperatures[2] + ", " + 
-                                  "右臂=" + temperatures[3] + ", " + 
-                                  "左腿=" + temperatures[4] + ", " + 
-                                  "右腿=" + temperatures[5] + ", " +
-                                  "透明度=" + alpha);
             } else {
                 System.err.println("bodyModel为空，无法更新纹理坐标");
             }

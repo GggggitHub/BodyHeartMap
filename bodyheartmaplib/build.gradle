@@ -1,6 +1,12 @@
 plugins {
     alias(libs.plugins.android.library)
+    id 'maven-publish'
+    id 'signing'
 }
+//// 顶部添加maven发布插件
+//plugins {
+//
+//}
 
 android {
     namespace 'com.aj.bodyheartmap'
@@ -23,6 +29,14 @@ android {
         sourceCompatibility JavaVersion.VERSION_11
         targetCompatibility JavaVersion.VERSION_11
     }
+
+    // 添加这个配置以支持发布
+    publishing {
+        singleVariant("release") {
+            withSourcesJar()
+            withJavadocJar()
+        }
+    }
 }
 
 dependencies {
@@ -33,3 +47,73 @@ dependencies {
     androidTestImplementation libs.androidx.junit
     androidTestImplementation libs.androidx.espresso.core
 }
+
+tasks.withType(PublishToMavenRepository) {
+    doFirst {
+        System.setProperty('org.gradle.internal.http.socketTimeout', '20000') //设置为120秒
+        System.setProperty('org.gradle.internal.http.connectionTimeout', '20000')
+    }
+}
+
+// 添加发布配置
+afterEvaluate {
+    publishing {
+        publications {
+            release(MavenPublication) {
+                from components.release
+
+                groupId = 'com.aj'
+                artifactId = 'bodyheartmaplib'
+                version = '1.0.0'
+
+                // 添加POM信息
+                pom {
+                    name = 'BodyHeartMap Library'
+                    description = 'body heart map library'
+                    url = 'https://github.com/yourusername/BodyHeartMap'
+
+                    licenses {
+                        license {
+                            name = 'The Apache License, Version 2.0'
+                            url = 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                        }
+                    }
+
+                    developers {
+                        developer {
+                            id = 'yourid'
+                            name = 'aj2014'
+                            email = 'passionjie2014@163.com'
+                        }
+                    }
+                }
+            }
+        }
+
+        repositories {
+            // 本地Maven仓库
+            maven {
+                name = 'localRepo'
+//                url = layout.buildDirectory.dir("repo")
+                url = uri("../repo")
+                println("local maven url: $url")
+            }
+
+            maven {
+                name = "Sonatype"
+                def releasesRepoUrl = "https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/"
+//                def snapshotsRepoUrl = "https://s01.oss.sonatype.org/content/repositories/snapshots/"
+                def snapshotsRepoUrl = "https://central.sonatype.com/repository/maven-snapshots/"
+                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
+                credentials {
+                    username = project.findProperty("ossrhUsername") ?: ""
+                    password = project.findProperty("ossrhPassword") ?: ""
+                }
+            }
+        }
+    }
+    signing {
+        sign publishing.publications.release
+    }
+}
+
