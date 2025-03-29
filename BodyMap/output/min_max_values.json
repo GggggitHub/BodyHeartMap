@@ -1,0 +1,32 @@
+{
+    "x_min": {
+        "value": 69,
+        "coordinate": [
+            69,
+            1398
+        ]
+    },
+    "x_max": {
+        "value": 939,
+        "coordinate": [
+            939,
+            1364
+        ]
+    },
+    "y_min": {
+        "value": 187,
+        "coordinate": [
+            490,
+            187
+        ]
+    },
+    "y_max": {
+        "value": 2320,
+        "coordinate": [
+            414,
+            2320
+        ]
+    },
+    "x_span": 870,
+    "y_span": 2133
+}

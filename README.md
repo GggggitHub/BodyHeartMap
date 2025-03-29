@@ -8,6 +8,8 @@
   <img src="screenshots/demo.png" width="300" alt="BodyHeartMap演示">
 </p>
 
+- 详细的介绍：[Your Blog](https://yourblog.com)
+
 ## 📝 简介
 
 BodyHeartMap是一个基于OpenGL ES的Android人体热力图可视化库，专为医疗健康、运动科学和人体工程学等领域设计。该库提供了高效、直观的人体温度分布可视化功能，支持实时数据更新和交互控制。
@@ -21,6 +23,12 @@ BodyHeartMap是一个基于OpenGL ES的Android人体热力图可视化库，专�
 - 📊 内置3D坐标系可视化
 - 🔍 支持透明度调节
 - 📱 针对移动设备优化
+
+## 文件夹介绍
+- `bodyheartmaplib`：核心库，包含热力图渲染逻辑和数据处理
+- `app`：示例应用，展示如何使用BodyHeartMap库
+- `BodyMap`：opencv 提取人体关键点，分割人体部分
+
 
 ## 🛠️ 安装
 
@@ -88,22 +96,6 @@ heatMapView.updateTemperatureData(temperatures);
 heatMapView.updateGlAlpha(0.8f);
 ```
 
-### 使用管理器API
-
-为了更简洁的代码，您可以使用管理器API：
-
-```java
-// 获取管理器实例
-BodyHeatMapManager manager = BodyHeatMapManager.getInstance(context);
-
-// 创建热力图视图
-HeatMapView heatMapView = manager.createHeatMapView();
-container.addView(heatMapView);
-
-// 创建3D坐标系视图
-OpenGlxyz coordinateView = manager.createCoordinateView();
-container.addView(coordinateView);
-```
 
 ### 交互控制
 
@@ -217,11 +209,3 @@ private static final String FRAGMENT_SHADER =
 ## 📄 许可证
 
 本项目采用 [Apache License 2.0](LICENSE) 许可证。
-
-## 📞 联系方式
-
-- 邮箱：your.email@example.com
-- 微信：YourWeChatID
-- 博客：[Your Blog](https://yourblog.com)
-
----
